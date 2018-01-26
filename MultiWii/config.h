@@ -36,7 +36,7 @@
     //#define BI
     //#define TRI
     //#define QUADP
-    //#define QUADX
+    #define QUADX
     //#define Y4
     //#define Y6
     //#define HEX6
@@ -72,8 +72,8 @@
     #define MINCOMMAND  1000
 
   /**********************************  I2C speed for old WMP config (useless config for other sensors)  *************/
-    #define I2C_SPEED 100000L     //100kHz normal mode, this value must be used for a genuine WMP
-    //#define I2C_SPEED 400000L   //400kHz fast mode, it works only with some WMP clones
+    //#define I2C_SPEED 100000L     //100kHz normal mode, this value must be used for a genuine WMP
+    #define I2C_SPEED 400000L   //400kHz fast mode, it works only with some WMP clones
 
   /***************************    Internal i2c Pullups   ********************************/
     /* enable internal I2C pull ups (in most cases it is better to use external pullups) */
@@ -160,6 +160,7 @@
       //#define MultiWii_32U4_SE_no_baro // Hextronik MultiWii_32U4_SE without the MS561101BA to free flash-memory for other functions
       //#define Flyduino9DOF       // Flyduino 9DOF IMU MPU6050+HMC5883l
       //#define Nano_Plane         // Multiwii Plane version with tail-front LSM330 sensor http://www.radiosait.ru/en/page_5324.html
+      #define My_Plane
       
     /***************************    independent sensors    ********************************/
       /* leave it commented if you already checked a specific board above */
@@ -168,13 +169,13 @@
       //#define ITG3050
       //#define ITG3200
       //#define MPU3050
-      //#define L3G4200D
+      //#define L3G4200D        //MY
       //#define MPU6050       //combo + ACC
       //#define LSM330        //combo + ACC
       
       /* I2C accelerometer */
       //#define MMA7455
-      //#define ADXL345
+      //#define ADXL345         //MY
       //#define BMA020
       //#define BMA180
       //#define BMA280
@@ -183,12 +184,12 @@
       //#define MMA8451Q
 
       /* I2C barometer */
-      //#define BMP085
+      //#define BMP085        //MY
       //#define MS561101BA
 
       /* I2C magnetometer */
       //#define HMC5843
-      //#define HMC5883
+      //#define HMC5883       //MY
       //#define AK8975
       //#define MAG3110
 
@@ -671,7 +672,7 @@ At this moment you can use this function only with WinGUI 2.3 release. MultiWiiC
                                    // note: Now a GPS can share MSP on the same port. The only constrain is to not use it simultaneously, and use the same port speed.
 
     // avoid using 115200 baud because with 16MHz arduino the 115200 baudrate have more than 2% speed error (57600 have 0.8% error)
-    #define GPS_BAUD   57600       // GPS_BAUD will override SERIALx_COM_SPEED for the selected port
+    //#define GPS_BAUD   57600       // GPS_BAUD will override SERIALx_COM_SPEED for the selected port
 
    /* GPS protocol 
        NMEA  - Standard NMEA protocol GGA, GSA and RMC  sentences are needed
