@@ -450,7 +450,6 @@ void i2c_ETPP_send_char (char c) {
   i2c_write(0x40);// LCD_ETPP data register
   i2c_write(c);
 }
-
 void i2c_ETPP_set_cursor (byte addr) {
   i2c_ETPP_send_cmd(0x80 | addr); // High bit is "Set DDRAM" command, remaing bits are addr.
 }
@@ -632,6 +631,88 @@ void i2c_OLED_DIGOLE_clear(void) {
 }
 #endif // OLED_DIGOLE
 /* ------------------------------------------------------------------ */
+#if defined(ST7735S) // ST7735S
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_ST7735.h> // Hardware-specific library
+#include <SPI.h>
+
+#define TFT_CS     10
+#define TFT_RST    9  // you can also connect this to the Arduino reset
+                      // in which case, set this #define pin to 0!
+#define TFT_DC     8
+
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+
+void ST7735S_init () {
+  tft.initR(INITR_BLACKTAB);
+  tft.setTextWrap(false); // Allow text to run off right edge
+  tft.fillScreen(ST7735_BLACK);// clear screen
+  //------------------------------------------------------------------
+  //me i2c_OLED_DIGOLE_send_string("CL");    // clear screen
+  //  delayMicroseconds(500);
+  //  i2c_OLED_DIGOLE_send_string("BL");  // backlight _
+  //  i2c_write(0x01);                    // _ on
+  //me i2c_OLED_DIGOLE_send_string("CT");  // contrast _
+  //me i2c_write(100); // contrast [0;100]
+  //  i2c_write('C'); i2c_write('T'); i2c_write(100); // contrast [0;100]
+  //i2c_OLED_DIGOLE_send_string("DSS");    // display start screen _
+  //i2c_write(0);                         // _ off
+  //i2c_OLED_DIGOLE_send_string("CS");    // show cursor _
+  //i2c_write(0);                         // _ off
+  //i2c_OLED_DIGOLE_printString("123456789.123456789.");
+//    delayMicroseconds(500);
+//    i2c_OLED_DIGOLE_send_string("MCD"); // manual command
+//    i2c_write(0x81); //ssd1306: set contrast to _
+//    i2c_OLED_DIGOLE_send_string("MCD"); // manual data
+//    i2c_write(0xFF);  // _ value [0;255]
+//    delayMicroseconds(500);
+}
+void ST7735S_send_byte (byte c) {
+//Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
+//Me  i2c_write(0x00);
+//Me  i2c_write(c);
+}
+void ST7735S_send_string(const char *string){  // Sends a string of chars but not the null terminator
+//Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
+//Me  i2c_write(0x00);
+//Me  while(*string){
+//Me    i2c_write(*string);
+//Me    *string++;
+//Me  }
+  //delayMicroseconds(10);
+}
+void ST7735S_printString(const char *string){  // prints a string of chars
+  //  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
+  //  i2c_write(0x00);
+  //  i2c_write('T');
+  //  i2c_write('T');
+//Me  ST7735S_send_string("TT");  // type text _
+//Me  while(*string){
+//Me    i2c_write(*string);
+//Me    *string++;
+//Me  }
+//Me  i2c_write(0x00);
+  //delayMicroseconds(10);
+}
+void ST7735S_printChar(char c){  // prints a single char - should be printable
+//Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
+//Me  i2c_write(0x00);
+//Me  i2c_write('T');
+//Me  i2c_write('T');
+//Me  i2c_write(c);
+//Me  i2c_write(0x00);
+  //delayMicroseconds(10);
+}
+void ST7735S_clear(void) {
+//Me  ST7735S_send_string("CLSF");    // set font _
+//Me  #ifdef DISPLAY_FONT_DSIZE
+//Me    i2c_write(0);                         // _ one of 6,10,18,51,120,123,0 - font 0 is 5x16 linesxrows; font 10 is 7x21
+//Me  #else
+//Me    i2c_write(10);
+//Me  #endif
+}
+#endif // ST7735S
+/* ------------------------------------------------------------------ */
 void LCDprint(uint8_t i) {
   #ifdef DISPLAY_FONT_DSIZE
    if (! line_is_valid) return;
@@ -662,7 +743,6 @@ void LCDprint(uint8_t i) {
     i2c_OLED_DIGOLE_printChar(i);
   #endif
 }
-
 void LCDprintChar(const char *s) {
   #ifdef OLED_DIGOLE
     #ifdef DISPLAY_FONT_DSIZE
@@ -673,7 +753,6 @@ void LCDprintChar(const char *s) {
     while (*s) {LCDprint(*s++);}
   #endif
 }
-
 void LCDcrlf() {
   #if ( defined(OLED_I2C_128x64)|| defined(LCD_VT100) || defined(OLED_DIGOLE) )
     // do nothing - these displays use line positioning
@@ -838,7 +917,10 @@ void initLCD() {
     #endif
   #elif defined(OLED_DIGOLE)
     i2c_OLED_DIGOLE_init();
+  #elif defined(ST7735S)
+    ST7735S_init();
   #endif
+  
   #ifndef OLED_I2C_128x64LOGO_PERMANENT
     LCDclear();
     strcpy_P(line1,PSTR( BOARD_NAME )); // user defined macro
@@ -2664,6 +2746,8 @@ void toggle_telemetry(uint8_t t) {
       if (telemetry != 0) i2c_OLED_init();
     #elif defined(OLED_DIGOLE)
       if (telemetry != 0) i2c_OLED_DIGOLE_init();
+    #elif defined(ST7735S)
+      if (telemetry != 0) ST7735S_init();
     #endif
     LCDclear();
   }

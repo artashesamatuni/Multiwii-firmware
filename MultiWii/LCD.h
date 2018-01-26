@@ -7,6 +7,7 @@ void lcd_telemetry();
 void initLCD();
 void i2c_OLED_DIGOLE_init ();
 void i2c_OLED_init();
+void ST7735S_init();
 void LCDclear();
 void toggle_telemetry(uint8_t t);
 void dumpPLog(uint8_t full);
