@@ -537,7 +537,7 @@
   #define MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  Y; imu.magADC[PITCH]  = -X; imu.magADC[YAW]  =  Z;}
   #define ADXL345_ADDRESS 0x53
   #undef INTERNAL_I2C_PULLUPS
-  #define GPS_SERIAL 2
+  #define GPS_SERIAL 1
   #define GPS_BAUD   115200
   #define UBLOX
 #endif

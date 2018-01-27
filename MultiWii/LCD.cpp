@@ -632,21 +632,22 @@ void i2c_OLED_DIGOLE_clear(void) {
 #endif // OLED_DIGOLE
 /* ------------------------------------------------------------------ */
 #if defined(ST7735S) // ST7735S
-#include <Adafruit_GFX.h>    // Core graphics library
-#include <Adafruit_ST7735.h> // Hardware-specific library
 #include <SPI.h>
+#include "Ucglib.h"
 
-#define TFT_CS     10
-#define TFT_RST    9  // you can also connect this to the Arduino reset
-                      // in which case, set this #define pin to 0!
-#define TFT_DC     8
-
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS,  TFT_DC, TFT_RST);
+Ucglib_ST7735_18x128x160_HWSPI ucg(/*cd=*/ 3, /*cs=*/ 53, /*reset=*/ 2);
 
 void ST7735S_init () {
-  tft.initR(INITR_BLACKTAB);
-  tft.setTextWrap(false); // Allow text to run off right edge
-  tft.fillScreen(ST7735_BLACK);// clear screen
+  ucg.begin(UCG_FONT_MODE_TRANSPARENT);
+  //ucg.begin(UCG_FONT_MODE_SOLID);
+  ucg.clearScreen();
+    ucg.setFont(ucg_font_ncenR12_tr);
+  ucg.setColor(255, 255, 255);
+  //ucg.setColor(0, 255, 0);
+  ucg.setColor(1, 255, 0,0);
+  
+  ucg.setPrintPos(0,25);
+  ucg.print("Hello World!");
   //------------------------------------------------------------------
   //me i2c_OLED_DIGOLE_send_string("CL");    // clear screen
   //  delayMicroseconds(500);
@@ -671,6 +672,8 @@ void ST7735S_send_byte (byte c) {
 //Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
 //Me  i2c_write(0x00);
 //Me  i2c_write(c);
+    ucg.setPrintPos(0,55);
+  ucg.print("send_byte");
 }
 void ST7735S_send_string(const char *string){  // Sends a string of chars but not the null terminator
 //Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
@@ -680,6 +683,9 @@ void ST7735S_send_string(const char *string){  // Sends a string of chars but no
 //Me    *string++;
 //Me  }
   //delayMicroseconds(10);
+    ucg.setPrintPos(0,75);
+  ucg.print("send_string");
+
 }
 void ST7735S_printString(const char *string){  // prints a string of chars
   //  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
@@ -693,6 +699,9 @@ void ST7735S_printString(const char *string){  // prints a string of chars
 //Me  }
 //Me  i2c_write(0x00);
   //delayMicroseconds(10);
+  //tft.print(string);
+    ucg.setPrintPos(0,95);
+  ucg.print("printString");
 }
 void ST7735S_printChar(char c){  // prints a single char - should be printable
 //Me  i2c_rep_start(OLED_DIGOLE_ADDRESS<<1);
@@ -702,6 +711,9 @@ void ST7735S_printChar(char c){  // prints a single char - should be printable
 //Me  i2c_write(c);
 //Me  i2c_write(0x00);
   //delayMicroseconds(10);
+  //tft.print(c);
+      ucg.setPrintPos(0,115);
+  ucg.print("printChar");
 }
 void ST7735S_clear(void) {
 //Me  ST7735S_send_string("CLSF");    // set font _
@@ -710,6 +722,7 @@ void ST7735S_clear(void) {
 //Me  #else
 //Me    i2c_write(10);
 //Me  #endif
+ucg.clearScreen();
 }
 #endif // ST7735S
 /* ------------------------------------------------------------------ */
@@ -741,6 +754,8 @@ void LCDprint(uint8_t i) {
     i2c_OLED_send_char(i);
   #elif defined(OLED_DIGOLE)
     i2c_OLED_DIGOLE_printChar(i);
+  #elif defined(ST7735S)
+   ST7735S_printChar(i);
   #endif
 }
 void LCDprintChar(const char *s) {
@@ -783,6 +798,8 @@ void LCDclear() {
     i2c_clear_OLED();
   #elif defined(OLED_DIGOLE)
     i2c_OLED_DIGOLE_clear();
+  #elif defined(ST7735S)
+    ST7735S_clear();
   #endif
   #if ( defined(LOG_PERMANENT) && defined(DISPLAY_MULTILINE) )
     lnr = 0;
@@ -827,6 +844,8 @@ void LCDsetLine(byte line) { // Line = 1 or 2 - vt100 has lines 1-99
     i2c_OLED_set_line(line-1);
   #elif defined(OLED_DIGOLE)
     i2c_OLED_DIGOLE_send_string("TP");  i2c_write(0);i2c_write(line-1); // first column is 0, line numbers start with 0
+  #elif defined(ST7735S)
+    ST7735S_send_string("TP"); // i2c_write(0);i2c_write(line-1); // first column is 0, line numbers start with 0
   #endif
 }
 #if defined(LCD_VT100)
@@ -1798,6 +1817,13 @@ void LCDbar(uint8_t n,uint8_t v) {
     if (j<n) LCDprint(154 + (v*n*5/100 - 5*j)); // partial fill
     for (i=j+1; i< n; i++) LCDprint( 154 );    // empty
   #elif defined(OLED_DIGOLE)
+    uint8_t i, j = (n*v)/100;
+    char l[n+1];
+    for (i=0; i< j; i++) l[i] = '=';
+    for (i=j; i< n; i++) l[i] = '.';
+    l[n] = 0;
+    LCDprintChar(l);
+  #elif defined(ST7735S)
     uint8_t i, j = (n*v)/100;
     char l[n+1];
     for (i=0; i< j; i++) l[i] = '=';
