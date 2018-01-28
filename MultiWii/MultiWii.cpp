@@ -999,13 +999,9 @@ void loop () {
 #ifdef LCD_TELEMETRY_STEP
         else if (rcSticks == THR_LO + YAW_CE + PIT_HI + ROL_HI) {              // Telemetry next step
           telemetry = telemetryStepSequence[++telemetryStepIndex % strlen(telemetryStepSequence)];
-#if defined( OLED_I2C_128x64)
-          if (telemetry != 0) i2c_OLED_init();
-#elif defined(OLED_DIGOLE)
-          if (telemetry != 0) i2c_OLED_DIGOLE_init();
-#elif defined(ST7735S)
-          if (telemetry != 0) ST7735S();
-#endif
+  #if defined(ST7735S)
+            if (telemetry != 0) ST7735S_init();
+  #endif
           LCDclear();
         }
 #endif

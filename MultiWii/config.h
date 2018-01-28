@@ -641,18 +641,6 @@
 /* http://www.multiwii.com/wiki/index.php?title=Extra_features#LCD_.2F_OLED */
 
 /*****************************   The type of LCD     **********************************/
-/* choice of LCD attached for configuration and telemetry, see notes below */
-//#define LCD_DUMMY       // No Physical LCD attached.  With this & LCD_CONF defined, TX sticks still work to set gains, by watching LED blink.
-//#define LCD_SERIAL3W    // Alex' initial variant with 3 wires, using rx-pin for transmission @9600 baud fixed
-//#define LCD_TEXTSTAR    // SERIAL LCD: Cat's Whisker LCD_TEXTSTAR Module CW-LCD-02 (Which has 4 input keys for selecting menus)
-//#define LCD_VT100       // SERIAL LCD: vt100 compatible terminal emulation (blueterm, putty, etc.)
-//#define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
-//#define LCD_ETPP        // I2C LCD: Eagle Tree Power Panel LCD, which is i2c (not serial)
-//#define LCD_LCD03       // I2C LCD: LCD03, which is i2c
-//#define LCD_LCD03S      // SERIAL LCD: LCD03 whit serial 9600 baud comunication enabled.
-//#define OLED_I2C_128x64 // I2C LCD: OLED http://www.multiwii.com/forum/viewtopic.php?f=7&t=1350
-//#define OLED_I2C_128x160
-//#define OLED_DIGOLE     // I2C OLED from http://www.digole.com/index.php?productID=550
 #define ST7735S
 
 /******************************   Display settings   ***********************************/
@@ -665,14 +653,17 @@
    1 - ! , 2 - @ , 3 - # , 4 - $ , 5 - % , 6 - ^ , 7 - & , 8 - * , 9 - (
    You must add both to your lcd.telemetry.* sequences
 */
-//#define DISPLAY_FONT_DSIZE //currently only aplicable for OLED_I2C_128x64 and OLED_DIGOLE
+#define DISPLAY_FONT_DSIZE //currently only aplicable for OLED_I2C_128x64 and OLED_DIGOLE
 
 /* style of display - AUTODETECTED via LCD_ setting - only activate to override defaults */
 //#define DISPLAY_2LINES
-//#define DISPLAY_MULTILINE
-//#define MULTILINE_PRE 2  // multiline configMenu # pref lines
-//#define MULTILINE_POST 6 // multiline configMenu # post lines
-//#define DISPLAY_COLUMNS 16
+#define DISPLAY_MULTILINE
+#define MULTILINE_PRE 2  // multiline configMenu # pref lines
+#define MULTILINE_POST 6 // multiline configMenu # post lines
+#define DISPLAY_COLUMNS 16
+
+//#define DISPLAY_MATRIX
+
 /********************************    Navigation     ***********************************/
 /* keys to navigate the LCD menu */
 #define LCD_MENU_PREV 'p'
@@ -689,7 +680,7 @@
 
 /* uncomment this line if you plan to use a LCD or OLED for tweaking parameters
    http://www.multiwii.com/wiki/index.php?title=Extra_features#Configuration_Menu */
-#define LCD_CONF
+//#define LCD_CONF
 
 /* to include setting the aux switches for AUX1 -> AUX4 via LCD */
 //#define LCD_CONF_AUX
@@ -709,11 +700,11 @@
 #define LCD_TELEMETRY
 
 /* to enable automatic hopping between a choice of telemetry pages uncomment this. */
-#define LCD_TELEMETRY_AUTO "123452679" // pages 1 to 9 in ascending order
+//#define LCD_TELEMETRY_AUTO "123452679" // pages 1 to 9 in ascending order
 //#define LCD_TELEMETRY_AUTO  "212232425262729" // strong emphasis on page 2
 
 /* manual stepping sequence; first page of the sequence gets loaded at startup to allow non-interactive display */
-//#define LCD_TELEMETRY_STEP "0123456789" // should contain a 0 to allow switching off.
+#define LCD_TELEMETRY_STEP "70123456789" // should contain a 0 to allow switching off.
 
 /* optional exclude some functionality - uncomment to suppress some unwanted telemetry pages */
 //#define SUPPRESS_TELEMETRY_PAGE_1
@@ -782,7 +773,7 @@
    with R1=33k and R2=51k
    vbat = [0;1023]*16/VBATSCALE
    must be associated with #define BUZZER ! */
-//#define VBAT              // uncomment this line to activate the vbat code
+#define VBAT              // uncomment this line to activate the vbat code
 #define VBATSCALE       131 // (*) (**) change this value if readed Battery voltage is different than real voltage
 #define VBATNOMINAL     126 // 12,6V full battery nominal voltage - only used for lcd.telemetry
 #define VBATLEVEL_WARN1 107 // (*) (**) 10,7V
@@ -812,11 +803,9 @@
    2 - soft: - (good results +-5% for plush and mystery ESCs @ 2S and 3S, not good with SuperSimple ESC)    */
 //#define POWERMETER_SOFT
 //#define POWERMETER_HARD
-#define PSENSORNULL 510 /* (*) hard only: set to analogRead() value for zero current; for I=0A my sensor
-                                   gives 1/2 Vss; that is approx 2.49Volt; */
-#define PINT2mA 132     /* (*) hard: one integer step on arduino analog translates to mA (example 4.9 / 37 * 1000) ;
-                                   soft: use fictional value, start with 100.
-                                   for hard and soft: larger PINT2mA will get you larger value for power (mAh equivalent) */
+//#define PSENSORNULL 510 // (*) hard only: set to analogRead() value for zero current; for I=0A my sensor gives 1/2 Vss; that is approx 2.49Volt; 
+//#define PINT2mA 132     // (*) hard: one integer step on arduino analog translates to mA (example 4.9 / 37 * 1000) ;
+                          //     soft: use fictional value, start with 100. for hard and soft: larger PINT2mA will get you larger value for power (mAh equivalent)
 //#define WATTS // compute and display the actual watts (=Volt*Ampere) consumed - requires both POWERMETER_HARD and VBAT
 
 /********************************************************************/
@@ -867,7 +856,7 @@
    It must be 16 characters total,
    The last 4 characters will be overwritten with the version number.
 */
-#define BOARD_NAME "MultiWii   V-.--"
+#define BOARD_NAME "MultiWii   V2.41"
 //                  123456789.123456
 
 /*************      Support multiple configuration profiles in EEPROM     ************/
@@ -1010,7 +999,7 @@
 /* to add debugging code
    not needed and not recommended for normal operation
    will add extra code that may slow down the main loop or make copter non-flyable */
-//#define DEBUG
+#define DEBUG
 //#define DEBUG_FREE // will add 'F' command to show free memory
 
 /* Use this to trigger LCD configuration without a TX - only for debugging - do NOT fly with this activated */
