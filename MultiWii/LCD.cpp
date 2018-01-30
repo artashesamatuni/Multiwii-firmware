@@ -2243,29 +2243,20 @@ void fill_line1_gps_lat(uint8_t sat, char *buff) {
   line1[10] = '0' + aGPS_latitude  / 10        - (aGPS_latitude / 100)        * 10;
   line1[11] = '0' + aGPS_latitude              - (aGPS_latitude / 10)         * 10;
 }
-void get_gps_lat(uint8_t sat, char *buff) {
+void get_gps_lat(char *buff) {
   int32_t aGPS_latitude = abs(GPS_coord[LAT]);
-  if(sat)
-  {
-    strcpy_P(buff, PSTR(".---.------- #--"));
-    buff[14] = digit10(GPS_numSat);
-    buff[15] = digit1(GPS_numSat);
-  }
-  else
-  {
-    strcpy_P(buff, PSTR(".---.-------    "));
-  }
+  strcpy_P(buff, PSTR(". ---.-------   "));
   buff[0] = GPS_coord[LAT] < 0 ? 'S' : 'N';
-  buff[1]  = '0' + aGPS_latitude  / 1000000000;
-  buff[2]  = '0' + aGPS_latitude  / 100000000 - (aGPS_latitude / 1000000000) * 10;
-  buff[3]  = '0' + aGPS_latitude  / 10000000  - (aGPS_latitude / 100000000)  * 10;
-  buff[5]  = '0' + aGPS_latitude  / 1000000   - (aGPS_latitude / 10000000)   * 10;
-  buff[6]  = '0' + aGPS_latitude  / 100000    - (aGPS_latitude / 1000000)    * 10;
-  buff[7]  = '0' + aGPS_latitude  / 10000     - (aGPS_latitude / 100000)     * 10;
-  buff[8]  = '0' + aGPS_latitude  / 1000      - (aGPS_latitude / 10000)      * 10;
-  buff[9]  = '0' + aGPS_latitude  / 100       - (aGPS_latitude / 1000)       * 10;
-  buff[10] = '0' + aGPS_latitude  / 10        - (aGPS_latitude / 100)        * 10;
-  buff[11] = '0' + aGPS_latitude              - (aGPS_latitude / 10)         * 10;
+  buff[2]  = '0' + aGPS_latitude  / 1000000000;
+  buff[3]  = '0' + aGPS_latitude  / 100000000 - (aGPS_latitude / 1000000000) * 10;
+  buff[4]  = '0' + aGPS_latitude  / 10000000  - (aGPS_latitude / 100000000)  * 10;
+  buff[6]  = '0' + aGPS_latitude  / 1000000   - (aGPS_latitude / 10000000)   * 10;
+  buff[7]  = '0' + aGPS_latitude  / 100000    - (aGPS_latitude / 1000000)    * 10;
+  buff[8]  = '0' + aGPS_latitude  / 10000     - (aGPS_latitude / 100000)     * 10;
+  buff[9]  = '0' + aGPS_latitude  / 1000      - (aGPS_latitude / 10000)      * 10;
+  buff[10]  = '0' + aGPS_latitude  / 100       - (aGPS_latitude / 1000)       * 10;
+  buff[11] = '0' + aGPS_latitude  / 10        - (aGPS_latitude / 100)        * 10;
+  buff[12] = '0' + aGPS_latitude              - (aGPS_latitude / 10)         * 10;
 }
 void fill_line2_gps_lon(uint8_t status) {
   int32_t aGPS_longitude = abs(GPS_coord[LON]);
@@ -2287,29 +2278,36 @@ void fill_line2_gps_lon(uint8_t status) {
   line2[10] = '0' + aGPS_longitude / 10        - (aGPS_longitude / 100)        * 10;
   line2[11] = '0' + aGPS_longitude             - (aGPS_longitude / 10)         * 10;
 }
-void get_gps_lon(uint8_t status, char *buff) {
+void get_gps_lon(char *buff) {
   int32_t aGPS_longitude = abs(GPS_coord[LON]);
-  if (status)
-  {
-    strcpy_P(buff, PSTR(".---.-------    "));
-        buff[13] = (GPS_update ? 'U' : '.');
-    //buff[15] = (1 ? 'P' : '.');
-  }
-  else
-  {
-    strcpy_P(buff, PSTR(".---.-------    "));
-  }
+  strcpy_P(buff, PSTR(". ---.-------   "));
   buff[0] = GPS_coord[LON] < 0 ? 'W' : 'E';
-  buff[1]  = '0' + aGPS_longitude / 1000000000;
-  buff[2]  = '0' + aGPS_longitude / 100000000 - (aGPS_longitude / 1000000000) * 10;
-  buff[3]  = '0' + aGPS_longitude / 10000000  - (aGPS_longitude / 100000000)  * 10;
-  buff[5]  = '0' + aGPS_longitude / 1000000   - (aGPS_longitude / 10000000)   * 10;
-  buff[6]  = '0' + aGPS_longitude / 100000    - (aGPS_longitude / 1000000)    * 10;
-  buff[7]  = '0' + aGPS_longitude / 10000     - (aGPS_longitude / 100000)     * 10;
-  buff[8]  = '0' + aGPS_longitude / 1000      - (aGPS_longitude / 10000)      * 10;
-  buff[9]  = '0' + aGPS_longitude / 100       - (aGPS_longitude / 1000)       * 10;
-  buff[10] = '0' + aGPS_longitude / 10        - (aGPS_longitude / 100)        * 10;
-  buff[11] = '0' + aGPS_longitude             - (aGPS_longitude / 10)         * 10;
+  buff[2]  = '0' + aGPS_longitude / 1000000000;
+  buff[3]  = '0' + aGPS_longitude / 100000000 - (aGPS_longitude / 1000000000) * 10;
+  buff[4]  = '0' + aGPS_longitude / 10000000  - (aGPS_longitude / 100000000)  * 10;
+  buff[6]  = '0' + aGPS_longitude / 1000000   - (aGPS_longitude / 10000000)   * 10;
+  buff[7]  = '0' + aGPS_longitude / 100000    - (aGPS_longitude / 1000000)    * 10;
+  buff[8]  = '0' + aGPS_longitude / 10000     - (aGPS_longitude / 100000)     * 10;
+  buff[9]  = '0' + aGPS_longitude / 1000      - (aGPS_longitude / 10000)      * 10;
+  buff[10] = '0' + aGPS_longitude / 100       - (aGPS_longitude / 1000)       * 10;
+  buff[11] = '0' + aGPS_longitude / 10        - (aGPS_longitude / 100)        * 10;
+  buff[12] = '0' + aGPS_longitude             - (aGPS_longitude / 10)         * 10;
+}
+void get_gps_sat(char *buff) {
+
+    strcpy_P(buff, PSTR("#-- in view"));
+    buff[1] = digit10(GPS_numSat);
+    buff[2] = digit1(GPS_numSat);
+}
+
+void get_gps_speed(char *buff) {  
+  strcpy_P(buff, PSTR("--km/h max--km/h"));
+  uint8_t v = (GPS_speed * 0.036f);
+  line1[0] = digit10(v);
+  line1[1] = digit1(v);
+  v = (GPS_speedMax * 0.036f);
+  line1[10] = digit10(v);
+  line1[11] = digit1(v);
 }
 #endif
 
@@ -2655,6 +2653,7 @@ void output_debug3() {
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_7
 #if GPS
+
 #ifdef DISPLAY_FONT_DSIZE
     case '&':
       {
@@ -2662,20 +2661,28 @@ void output_debug3() {
       }
       // no break !!
 #endif
+
     case 7: // GPS
     case '7':
       { 
-            tft.setFont(ucg_font_helvB08_tr);
-            get_gps_lat(0,buff);
+            tft.setFont(ucg_font_8x13_mf);
+            tft.setPrintPos(0,10);
+            get_gps_lat(buff);
             tft.print(buff);
-            linenr++;
-            get_gps_lon(0,buff);
+            tft.setPrintPos(1,25);
+            get_gps_lon(buff);
+            tft.print(buff);
+            tft.setPrintPos(0,40);
+            get_gps_sat(buff);
+            tft.print(buff);
+            tft.setPrintPos(0,55);
+            get_gps_speed(buff);
             tft.print(buff);
         
         linenr++;
         linenr %= 6;
-        LCDsetLine(linenr + 1);
 
+/*
         switch (linenr + POSSIBLE_OFFSET) {
           case 0: // lat
 
@@ -2719,7 +2726,8 @@ void output_debug3() {
             output_V();
             break;
         }
-        LCDcrlf();
+        */
+    //    LCDcrlf();
         break;
       }
 #endif // gps
@@ -3237,7 +3245,7 @@ void output_debug3() {
         LCDsetLine(linenr + 1);
         switch (linenr + POSSIBLE_OFFSET) {
           case 0: // lat
-            fill_line1_gps_lat(0); // skip #sat
+            fill_line1_gps_lat(1); // skip #sat
             LCDprintChar(line1);
             break;
           case 1: // lon
