@@ -1,21 +1,12 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-//#if defined(ST7735S) // ST7735S
-//#include <SPI.h>
-//#include "Ucglib.h"
-
-//Ucglib_ST7735_18x128x160_HWSPI ucg(/*cd=*/ 3, /*cs=*/ 53, /*reset=*/ 2);
-//#endif
-
-
 void configurationLoop();
 void LCDprint(uint8_t i);
 void lcd_telemetry();
 void initLCD();
 void i2c_OLED_DIGOLE_init ();
 void i2c_OLED_init();
-void ST7735S_init();
 void LCDclear();
 void toggle_telemetry(uint8_t t);
 void dumpPLog(uint8_t full);
