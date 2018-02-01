@@ -1011,7 +1011,7 @@ void initLCD() {
 #ifdef LCD_TELEMETRY_STEP
   // load the first page of the step sequence
   LCDclear();
-  telemetry = telemetryStepSequence[telemetryStepIndex]; //[++telemetryStepIndex % strlen(telemetryStepSequence)];
+  telemetry = telemetryStepSequence/*[telemetryStepIndex]; //*/[++telemetryStepIndex % strlen(telemetryStepSequence)];
 #endif
 }
 #endif //Support functions for LCD_CONF and LCD_TELEMETRY
@@ -2277,6 +2277,20 @@ void screen_GPS(void)
   buff[12] = '0' + n              - (n / 10)         * 10;
   tft.setPrintPos(4, 104);
   tft.print(buff);
+  n = GPS_time;
+  strcpy_P(buff, PSTR("----------"));
+  buff[0]  = '0' + n  / 1000000000;
+  buff[1]  = '0' + n  / 100000000 - (n / 1000000000) * 10;
+  buff[2]  = '0' + n  / 10000000  - (n / 100000000)  * 10;
+  buff[3] = '0' + n  / 1000000   - (n / 10000000)   * 10;
+  buff[4] = '0' + n  / 100000    - (n / 1000000)    * 10;
+  buff[5] = '0' + n  / 10000     - (n / 100000)     * 10;
+  buff[6] = '0' + n  / 1000      - (n / 10000)      * 10;
+  buff[7] = '0' + n  / 100       - (n / 1000)       * 10;
+  buff[8] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[9] = '0' + n              - (n / 10)         * 10;
+  tft.setPrintPos(4, 128);
+  tft.print(buff);
 }
 void icon_GPS(void) {
   const uint8_t PROGMEM gps_bits[] = {/* 8x12 */
@@ -2339,12 +2353,22 @@ void icon_POWER(void) {
 void icon_CYRCLE(void)
 {
   const uint8_t PROGMEM cycle_bits[] = {
-   0x20, 0x7e, 0x21, 0x01, 0x41, 0x41, 0x41, 0x40, 0x42, 0x3f, 0x02, 0x00 };
-  if (output_cycle != LOOP_TIME)
+    0x20, 0x7e, 0x21, 0x01, 0x41, 0x41, 0x41, 0x40, 0x42, 0x3f, 0x02, 0x00
+  };
+  char buff[4];
+  strcpy_P(buff, PSTR("----"));
+  if (cycleTime < LOOP_TIME)
     tft.setColor(255, 0, 0);
   else
     tft.setColor(0, 255, 0);
-    drawBitmap(40, 3, cycle_bits, 8, 12);
+  drawBitmap(40, 3, cycle_bits, 8, 12);
+  buff[0] = '0' + cycleTime  / 1000       - (cycleTime / 10000)       * 10;
+  buff[1] = '0' + cycleTime  / 100       - (cycleTime / 1000)       * 10;
+  buff[2] = '0' + cycleTime  / 10        - (cycleTime / 100)        * 10;
+  buff[3] = '0' + cycleTime              - (cycleTime / 10)         * 10;
+  tft.setFont(ucg_font_5x7_tr);
+  tft.setPrintPos(55, 12);
+  tft.print(buff);
 }
 
 
@@ -3358,12 +3382,12 @@ void lcd_telemetry() {
 #endif
     case 9: // diagnostics
     case '9':
-    /*
-      linenr++;
-      linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page9_func_ptr) / 2) - POSSIBLE_OFFSET);
-      LCDsetLine(linenr + 1);
-      (*page9_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
-      LCDcrlf();
+      /*
+        linenr++;
+        linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page9_func_ptr) / 2) - POSSIBLE_OFFSET);
+        LCDsetLine(linenr + 1);
+        (*page9_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
+        LCDcrlf();
       */
       break;
 #endif // page 9

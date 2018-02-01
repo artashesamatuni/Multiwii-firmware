@@ -1256,7 +1256,7 @@ bool GPS_newFrame(uint8_t data){
           GPS_coord[LON] = _buffer.posllh.longitude;
           GPS_coord[LAT] = _buffer.posllh.latitude;
           GPS_altitude   = _buffer.posllh.altitude_msl / 1000; //alt in m
-          //GPS_time       = _buffer.posllh.time; //not used for the moment
+          GPS_time       = _buffer.posllh.time; //not used for the moment
         }
         ret= true;        // POSLLH message received, allow blink GUI icon and LED, frame available for nav computation
       } else if (_msg_id ==  MSG_SOL) {
@@ -1478,7 +1478,7 @@ bool GPS_newFrame(uint8_t data) {
       GPS_speed                   = _buffer.msg.ground_speed;     // in m/s * 100 == in cm/s
       GPS_ground_course           = _buffer.msg.ground_course/100;  //in degrees
       GPS_numSat                  = _buffer.msg.satellites;
-      //GPS_time                    = _buffer.msg.utc_time;
+      GPS_time                    = _buffer.msg.utc_time;
       //GPS_hdop                  = _buffer.msg.hdop;
       parsed = true;
   }
