@@ -2200,6 +2200,156 @@ void fill_line2_gps_lon(uint8_t status) {
 }
 #endif
 
+
+//MATRIX FUNCTIONS----------------------------------------------------
+void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h) {
+  int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
+  uint8_t byte = 0;
+  for (int16_t j = 0; j < h; j++, y++) {
+    for (int16_t i = 0; i < w; i++) {
+      if (i & 7)
+        byte <<= 1;
+      else
+        byte   = bitmap[j * byteWidth + i / 8];
+      if (byte & 0x80)
+        tft.drawPixel(x + i, y);
+    }
+  }
+}
+
+void screen_FRAME(void)
+{
+  tft.setColor(255, 255, 0);
+  tft.drawFrame(0, 18, 128 , 142);
+  // tft.drawHLine(0, 15, 128);
+}
+void screen_GPS(void)
+{
+  // tft.setFont(ucg_font_6x10_tr);
+  char buff[18];
+  int32_t n;
+  tft.setFont(ucg_font_7x13_mf);
+  tft.setColor(0, 255, 0);
+  n = abs(GPS_coord[LAT]);
+  strcpy_P(buff, PSTR("Lat. .---.-------"));
+  buff[5]  = GPS_coord[LAT] < 0 ? 'S' : 'N';
+  buff[6]  = '0' + n  / 1000000000;
+  buff[7]  = '0' + n  / 100000000 - (n / 1000000000) * 10;
+  buff[8]  = '0' + n  / 10000000  - (n / 100000000)  * 10;
+  buff[10] = '0' + n  / 1000000   - (n / 10000000)   * 10;
+  buff[11] = '0' + n  / 100000    - (n / 1000000)    * 10;
+  buff[12] = '0' + n  / 10000     - (n / 100000)     * 10;
+  buff[13] = '0' + n  / 1000      - (n / 10000)      * 10;
+  buff[14] = '0' + n  / 100       - (n / 1000)       * 10;
+  buff[15] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[16] = '0' + n              - (n / 10)         * 10;
+  tft.setPrintPos(4, 63);
+  tft.print(buff);
+  n = abs(GPS_coord[LON]);
+  strcpy_P(buff, PSTR("Lon. .---.-------"));
+  buff[5]  = GPS_coord[LON] < 0 ? 'W' : 'E';
+  buff[6]  = '0' + n  / 1000000000;
+  buff[7]  = '0' + n  / 100000000 - (n / 1000000000) * 10;
+  buff[8]  = '0' + n  / 10000000  - (n / 100000000)  * 10;
+  buff[10] = '0' + n  / 1000000   - (n / 10000000)   * 10;
+  buff[11] = '0' + n  / 100000    - (n / 1000000)    * 10;
+  buff[12] = '0' + n  / 10000     - (n / 100000)     * 10;
+  buff[13] = '0' + n  / 1000      - (n / 10000)      * 10;
+  buff[14] = '0' + n  / 100       - (n / 1000)       * 10;
+  buff[15] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[16] = '0' + n              - (n / 10)         * 10;
+  tft.setPrintPos(4, 76);
+  tft.print(buff);
+  n = GPS_altitude;
+  strcpy_P(buff, PSTR("Alt. ----        "));
+  buff[5] = '0' + n  / 1000      - (n / 10000)      * 10;
+  buff[6] = '0' + n  / 100       - (n / 1000)       * 10;
+  buff[7] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[8] = '0' + n              - (n / 10)         * 10;
+  tft.setPrintPos(4, 90);
+  tft.print(buff);
+  n = GPS_speed * 0.036f;
+  strcpy_P(buff, PSTR("--km/h max --km/h"));
+  buff[0] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[1] = '0' + n              - (n / 10)         * 10;
+  n = (GPS_speedMax * 0.036f);
+  buff[11] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[12] = '0' + n              - (n / 10)         * 10;
+  tft.setPrintPos(4, 104);
+  tft.print(buff);
+}
+void icon_GPS(void) {
+  const uint8_t PROGMEM gps_bits[] = {/* 8x12 */
+    0x1c, 0x3e, 0x77, 0x63, 0x77, 0x3e, 0x3e, 0x1c, 0x1c, 0x08, 0x08, 0x00
+  };
+#ifdef GPS
+  char buff[5];
+  uint8_t n = GPS_numSat;
+  if (n)
+  {
+    tft.setColor(0, 255, 0);
+    strcpy_P(buff, PSTR("#--"));
+    buff[1] = '0' + n  / 10        - (n / 100)        * 10;
+    buff[2] = '0' + n              - (n / 10)         * 10;
+    tft.setPrintPos(110, 12);
+    tft.print(buff);
+  }
+  else
+  {
+    tft.setColor(0, 0, 0);
+    tft.drawFrame(110, 0, 28 , 12);
+    tft.setColor(255, 0, 0);
+  }
+  drawBitmap(100, 3, gps_bits, 8, 12);
+#else
+  tft.setColor(255, 0, 0);
+  drawBitmap(100, 3, gps_bits, 8, 12);
+
+#endif
+}
+
+void icon_POWER(void) {
+  const uint8_t PROGMEM w_bits[] = {/* 8x12 */
+    0x1c, 0x7f, 0x41, 0x49, 0x49, 0x49, 0x49, 0x41, 0x49, 0x41, 0x7f, 0x00
+  };
+#ifdef VBAT
+  const uint8_t PROGMEM ok_bits[] = {/* 8x12 */
+    0x1c, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x00
+  };
+  char buff[5];
+  strcpy_P(buff, PSTR("--.-V"));
+  /*                   01234*/
+  buff[0] = '0' + analog.vbat  / 100       - (analog.vbat / 1000)       * 10;
+  buff[1] = '0' + analog.vbat  / 10        - (analog.vbat / 100)        * 10;
+  buff[3] = '0' + analog.vbat              - (analog.vbat / 10)         * 10;
+  if (analog.vbat < conf.vbatlevel_warn1)
+    tft.setColor(255, 0, 0);
+  else
+    tft.setColor(255, 255, 0);
+  drawBitmap(2, 3, w_bits, 8, 12);
+  tft.setFont(ucg_font_5x7_tr);
+  tft.setPrintPos(12, 12);
+  tft.print(buff);
+#else
+  tft.setColor(255, 0, 0);
+  drawBitmap(2, 3, w_bits, 8, 12);
+#endif
+}
+
+void icon_CYRCLE(void)
+{
+  const uint8_t PROGMEM cycle_bits[] = {
+   0x20, 0x7e, 0x21, 0x01, 0x41, 0x41, 0x41, 0x40, 0x42, 0x3f, 0x02, 0x00 };
+  if (output_cycle != LOOP_TIME)
+    tft.setColor(255, 0, 0);
+  else
+    tft.setColor(0, 255, 0);
+    drawBitmap(40, 3, cycle_bits, 8, 12);
+}
+
+
+//--------------------------------------------------------------------
+
 void output_gyroX() {
   LCDprintInt16(imu.gyroData[0]); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.gyroData[0], GYROLIMIT);
@@ -2277,13 +2427,14 @@ void output_debug3() {
 #endif
 
 /* ------------ DISPLAY_2LINES ------------------------------------*/
-#ifdef DISPLAY_2LINES
-void lcd_telemetry() {
+/*
+  #ifdef DISPLAY_2LINES
+  void lcd_telemetry() {
   static uint8_t linenr = 0;
   switch (telemetry) { // output telemetry data
       uint16_t unit;
       uint8_t i;
-#ifndef SUPPRESS_TELEMETRY_PAGE_1
+  #ifndef SUPPRESS_TELEMETRY_PAGE_1
     case 1: // button A on Textstar LCD -> angles
     case '1':
       if (linenr++ % 2) {
@@ -2291,14 +2442,14 @@ void lcd_telemetry() {
         LCDsetLine(1);
         LCDprintChar(line1);
       } else {
-#ifdef POWERMETER_HARD
+  #ifdef POWERMETER_HARD
         LCDsetLine(2);
         output_AmaxA();
-#endif
+  #endif
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_2
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_2
     case 2: // button B on Textstar LCD -> Voltage, PowerSum and power alarm trigger value
     case '2':
       if (linenr++ % 2) {
@@ -2309,22 +2460,22 @@ void lcd_telemetry() {
         output_mAh();
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_3
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_3
     case 3: // button C on Textstar LCD -> cycle time
     case '3':
       if (linenr++ % 2) {
         LCDsetLine(1);
         output_cycle();
       } else {
-#if (LOG_VALUES >= 2)
+  #if (LOG_VALUES >= 2)
         LCDsetLine(2);
         output_cycleMinMax());
-#endif
+  #endif
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_4
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_4
     case 4: // button D on Textstar LCD -> sensors
     case '4':
       if (linenr++ % 2) {
@@ -2339,8 +2490,8 @@ void lcd_telemetry() {
         outputSensor(4, imu.accSmooth[2] - ACC_1G, ACCLIMIT);
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_5
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_5
     case 5:
     case '5':
       if (linenr++ % 2) {
@@ -2351,8 +2502,8 @@ void lcd_telemetry() {
         output_annex();
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_6
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_6
     case 6: // RX inputs
     case '6':
       if (linenr++ % 2) {
@@ -2378,11 +2529,11 @@ void lcd_telemetry() {
         LCDsetLine(2); LCDprintChar(line2);
       }
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_7
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_7
     case 7:
     case '7':
-#if GPS
+  #if GPS
       if (linenr++ % 2) {
         fill_line1_gps_lat(1); // including #sat
         LCDsetLine(1); LCDprintChar(line1);
@@ -2391,10 +2542,10 @@ void lcd_telemetry() {
         fill_line2_gps_lon(1); // including status info
         LCDsetLine(2); LCDprintChar(line2);
       }
-#endif // case 7 : GPS
+  #endif // case 7 : GPS
       break;
-#endif
-#ifndef SUPPRESS_TELEMETRY_PAGE_9
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_9
     case 9:
     case '9':
       LCDsetLine(1);
@@ -2403,28 +2554,434 @@ void lcd_telemetry() {
       LCDprintInt16(debug[2]); LCDprint(' ');
       LCDprintInt16(debug[3]); LCDprint(' ');
       break;
-#endif
+  #endif
 
-#if defined(LOG_VALUES) && defined(DEBUG)
+  #if defined(LOG_VALUES) && defined(DEBUG)
     case 'R':
       //Reset logvalues
       cycleTimeMax = 0;// reset min/max on transition on->off
       cycleTimeMin = 65535;
       telemetry = 0;// no use to repeat this forever
       break;
-#endif // case R
-#if defined(DEBUG) || defined(DEBUG_FREE)
+  #endif // case R
+  #if defined(DEBUG) || defined(DEBUG_FREE)
     case 'F':
       PRINT_FREE_RAM;
       break;
-#endif // DEBUG
+  #endif // DEBUG
       // WARNING: if you add another case here, you should also add a case: in Serial.pde, so users can access your case via terminal input
   } // end switch (telemetry)
-} // end function lcd_telemetry
+  } // end function lcd_telemetry
+  #endif // DISPLAY_2LINES
+  /* ------------ DISPLAY_MULTILINE ------------------------------------*/
+/*
+  #ifdef DISPLAY_MULTILINE
+  #ifndef SUPPRESS_TELEMETRY_PAGE_5
+  void outputMotorServo(uint8_t i, uint16_t unit) {
+  #ifdef HELICOPTER
+  static char outputNames[16][3] = {"M1", " 2", " 3", " 4", " 5", " 6", " 7", " 8",
+                                    "S1", "S2", "S3", "SN", "SL", "ST", "SR", "SM",
+                                   };
+  #else
+  static char outputNames[16][3] = {"M1", " 2", " 3", " 4", " 5", " 6", " 7", " 8",
+                                    "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
+                                   };
+  #endif
+  LCDprintChar(outputNames[i]);
+  template7[1] = digit1000(unit);
+  template7[2] = digit100(unit);
+  template7[3] = digit10(unit);
+  template7[4] = digit1(unit);
+  LCDprintChar(template7);
+  unit = constrain(unit, 1000, 2000);
+  LCDbar(DISPLAY_COLUMNS - 8, (unit - 1000) / 10 );
+  LCDcrlf();
+  }
+  #endif
+  #ifdef LCD_TELEMETRY_PAGE1
+  void (*page1_func_ptr[]) () = LCD_TELEMETRY_PAGE1 ;
+  #else
+  void (*page1_func_ptr[]) () = {
+  #ifdef VBAT
+  output_V, //1
+  #endif
+  #ifdef POWERMETER
+  output_mAh,
+  #endif
+  #ifdef VBAT
+  output_Vmin,
+  #endif
+  output_errors_or_armedTime,
+  output_checkboxstatus,
+  #if BARO
+  output_altitude,
+  #endif
+  #ifdef POWERMETER_HARD
+  output_AmaxA,
+  #endif
+  #ifdef WATTS
+  output_WmaxW,
+  #endif
+  output_uptime_cset,
+  };
+  #endif
+  #ifdef LCD_TELEMETRY_PAGE9
+  void (*page9_func_ptr[]) () = LCD_TELEMETRY_PAGE9 ;
+  #else
+  void (*page9_func_ptr[]) () = {
+  output_cycle,
+  #if (LOG_VALUES >= 2)
+  output_cycleMinMax,
+  #endif
+  output_fails,
+  output_annex,
+  #ifdef DEBUG
+  output_debug0, output_debug1, output_debug2, output_debug3,
+  #endif
+  };
+  #endif
+  #ifdef LCD_TELEMETRY_PAGE2
+  void (*page2_func_ptr[]) () = LCD_TELEMETRY_PAGE2 ;
+  #else
+  void (*page2_func_ptr[]) () = { output_gyroX, output_gyroY, output_gyroZ, output_accX, output_accY, output_accZ, };
+  #endif
 
-#endif // DISPLAY_2LINES
-/* ------------ DISPLAY_MULTILINE ------------------------------------*/
-#ifdef DISPLAY_MULTILINE
+  void lcd_telemetry() {
+  static uint8_t linenr = 0;
+  #ifdef DISPLAY_FONT_DSIZE
+  uint8_t offset = 0;
+  #define POSSIBLE_OFFSET offset
+  #else
+  #define POSSIBLE_OFFSET 0
+  #endif
+  switch (telemetry) { // output telemetry data
+      uint16_t unit;
+      uint8_t i;
+    case '0': // request to turn telemetry off - workaround, cannot enter binary zero \000 into string
+      telemetry = 0;
+      break;
+  #ifndef SUPPRESS_TELEMETRY_PAGE_1
+  #ifdef DISPLAY_FONT_DSIZE
+    case '!':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+  #endif
+    case 1:// overall display
+    case '1':
+      {
+        linenr++;
+        linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page1_func_ptr) / 2) - POSSIBLE_OFFSET);
+        LCDsetLine(linenr + 1);
+        (*page1_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
+        LCDcrlf();
+        break;
+      }
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_2
+  #ifdef DISPLAY_FONT_DSIZE
+    case '@':
+      {
+        offset = 3;
+      }
+      // no break !!
+  #endif
+    case 2: // sensor readings
+    case '2':
+      static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
+      i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, 6 - POSSIBLE_OFFSET);
+      LCDsetLine(i + 1);
+      LCDprintChar(sensorNames[i + POSSIBLE_OFFSET]);
+      LCDprint(' ');
+      (*page2_func_ptr [i + POSSIBLE_OFFSET] ) (); // not really linenumbers
+      LCDcrlf();
+      break;
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_3
+  #ifdef DISPLAY_FONT_DSIZE
+    case '#':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+  #endif
+    case 3: // checkboxes and modes
+    case '3':
+      {
+        i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, CHECKBOXITEMS - POSSIBLE_OFFSET);
+        LCDsetLine(i + 1);
+        LCDprintChar(checkboxitemNames[i + POSSIBLE_OFFSET]);
+        //LCDprintChar((PGM_P)(boxnames[index]));
+        LCDprint(' ');
+        LCDprint( rcOptions[i + POSSIBLE_OFFSET] ? 'X' : '.');
+        LCDcrlf();
+        break;
+      }
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_4
+  #ifdef DISPLAY_FONT_DSIZE
+    case '$':
+      {
+        offset = 4;
+      }
+      // no break !!
+  #endif
+    case 4: // RX inputs
+    case '4':
+      {
+        static char channelNames[8][4] = {"Ail", "Ele", "Yaw", "Thr", "Ax1", "Ax2", "Ax3", "Ax4"};
+        i = linenr++ % 8; // 8 channels
+        LCDsetLine((i - POSSIBLE_OFFSET) % 8 + 1);
+        //strcpy_P(line1,PSTR("-Thr ---- "));
+        //                   0123456789.12345
+        template3[0] = ( '0' + i + 1); // channel numbering [1;8]
+        LCDprintChar(template3);
+        LCDprintChar(channelNames[i]);
+        unit = rcData[i];
+        template7[1] = digit1000(unit);
+        template7[2] = digit100(unit);
+        template7[3] = digit10(unit);
+        template7[4] = digit1(unit);
+        LCDprintChar(template7);
+        unit = constrain(rcData[i], 1000, 2000);
+        LCDbar(DISPLAY_COLUMNS - 11, (unit - 1000) / 10 );
+        LCDcrlf();
+        break;
+      }
+  #endif
+  #ifndef SUPPRESS_TELEMETRY_PAGE_5
+  #ifdef DISPLAY_FONT_DSIZE
+    case '%':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+  #endif
+    case 5: // outputs motors+servos
+    case '5':
+      {
+        //      static char outputNames[16][3] = {"M1", " 2"," 3", " 4", " 5", " 6", " 7", " 8",
+        //          "S1", "S2","S3", "S4", "S5", "S6", "S7", "S8",};
+        static uint8_t index = 0;
+        i = index++ % 16;
+        if (i == 0) linenr = 0; //vt100 starts linenumbering @1
+        LCDsetLine((linenr - POSSIBLE_OFFSET) % 8 + 1);
+        if (i < 8) {
+          if (i < NUMBER_MOTOR) {
+            outputMotorServo(i, motor[i]);
+            linenr++;
+          } else {
+            index = 8;
+          }
+        } else {
+          uint8_t j = i - 7; // [8;15] -> [1;8]
+  #if defined(PRI_SERVO_FROM) && defined(SEC_SERVO_FROM)
+          if ((PRI_SERVO_FROM <= j && PRI_SERVO_TO >= j) || (SEC_SERVO_FROM <= j && SEC_SERVO_TO >= j))
+  #elif defined(PRI_SERVO_FROM)
+          if (j < PRI_SERVO_FROM) index = 7 + PRI_SERVO_FROM;
+          else if (j > PRI_SERVO_TO) index = 16;
+          else // (PRI_SERVO_FROM <= j && PRI_SERVO_TO >= j)
+  #endif
+  #if defined(PRI_SERVO_FROM) || defined(SEC_SERVO_FROM)
+          {
+            outputMotorServo(i, servo[j - 1]);
+            linenr++;
+            break;
+          }
+  #endif
+
+        }
+        break;
+      }
+  #endif // page 5
+
+  #ifndef SUPPRESS_TELEMETRY_PAGE_6
+  #if defined(VBAT_CELLS)
+  #ifdef DISPLAY_FONT_DSIZE
+    case '^':
+      {
+        offset = 4;
+      }
+      // no break !!
+  #endif
+    case 6: // alarms states
+    case '6':
+      {
+        i = linenr++ % VBAT_CELLS_NUM; // VBAT_CELLS_NUM cells
+        LCDsetLine((i - POSSIBLE_OFFSET) % VBAT_CELLS_NUM + 1);
+        strcpy_P(line1, PSTR("_:-.-V __._V"));
+        //                   0123456789.12345
+        line1[0] = digit1(i + 1);
+        uint16_t v = analog.vbatcells[i];
+        if (i > 0) v = (analog.vbatcells[i] > analog.vbatcells[i - 1] ? analog.vbatcells[i] - analog.vbatcells[i - 1] : 0);
+        line1[2] = digit10(v);
+        line1[4] =  digit1(v);
+        line1[7] = digit100(analog.vbatcells[i]);
+        line1[8] =  digit10(analog.vbatcells[i]);
+        line1[10] =   digit1(analog.vbatcells[i]);
+        //      #ifndef OLED_I2C_128x64
+        //        if (analog.vbat < conf.vbatlevel_warn1) { LCDattributesReverse(); }
+        //      #endif
+        if (v > VBATNOMINAL / VBAT_CELLS_NUM) v = VBATNOMINAL / VBAT_CELLS_NUM;
+        LCDbar(DISPLAY_COLUMNS - 12, (v * 100 * VBAT_CELLS_NUM) / VBATNOMINAL );
+        //      LCDattributesOff(); // turn Reverse off for rest of display
+        LCDprintChar(line1);
+        LCDcrlf();
+        break;
+      }
+  #endif // vbat.cells
+  #endif // page 6
+
+  #ifndef SUPPRESS_TELEMETRY_PAGE_7
+  #if GPS
+  #ifdef DISPLAY_FONT_DSIZE
+    case '&':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+  #endif
+    case 7: // GPS
+    case '7':
+      linenr++;
+      linenr %= 6;
+      LCDsetLine(linenr + 1);
+      switch (linenr + POSSIBLE_OFFSET) {
+        case 0: // lat
+          fill_line1_gps_lat(0); // skip #sat
+          LCDprintChar(line1);
+          break;
+        case 1: // lon
+          fill_line2_gps_lon(0);
+          LCDprintChar(line2);
+          break;
+        case 2: // # Sats
+          strcpy_P(line1, PSTR("-- Sats"));
+          //                   0123456789012345
+          line1[0] = digit10(GPS_numSat);
+          line1[1] = digit1(GPS_numSat);
+          LCDprintChar(line1);
+          break;
+        //        case 3: //
+        //          strcpy_P(line1,PSTR("Status "));
+        //          //                   0123456789012345
+        //          LCDprintChar(line1);
+        //          if (1)
+        //            LCDprintChar("OK");
+        //          else {
+        //            LCDattributesReverse();
+        //            LCDprintChar("KO");
+        //            LCDattributesOff();
+        //          }
+        //        break;
+        case 4: // gps speed
+          {
+            uint8_t v = (GPS_speed * 0.036f);
+            strcpy_P(line1, PSTR("--km/h max--km/h"));
+            //                   0123456789012345
+            line1[0] = digit10(v);
+            line1[1] = digit1(v);
+            v = (GPS_speedMax * 0.036f);
+            line1[10] = digit10(v);
+            line1[11] = digit1(v);
+            LCDprintChar(line1);
+            break;
+          }
+        case 5: // vbat
+          output_V();
+          break;
+      }
+      LCDcrlf();
+      break;
+  #endif // gps
+  #endif // page 7
+
+  #ifndef SUPPRESS_TELEMETRY_PAGE_8
+  #ifdef DISPLAY_FONT_DSIZE
+    case '*':
+      {
+        offset = 5;
+      }
+      // no break !!
+  #endif
+    case 8: // alarms states
+    case '8':
+      //   123456789.1234567890
+      static char alarmsNames[][12] = {
+        "0: toggle  ",
+        "1: failsafe",
+        "2: noGPS   ",
+        "3: beeperOn",
+        "4: pMeter  ",
+        "5: runtime ",
+        "6: vBat    ",
+        "7: confirma",
+        "8: Acc     ",
+        "9: I2Cerror"
+      };
+      linenr++;
+      linenr %= min(MULTILINE_PRE + MULTILINE_POST, 10 - POSSIBLE_OFFSET);
+      LCDsetLine(linenr + 1);
+      // [linenr + POSSIBLE_OFFSET]
+      LCDprintChar( alarmsNames[linenr + POSSIBLE_OFFSET] );
+      LCDprint(' ');
+      LCDprint( digit1( alarmArray[linenr + POSSIBLE_OFFSET] ) );
+      LCDcrlf();
+      break;
+  #endif // page 8
+
+  #ifndef SUPPRESS_TELEMETRY_PAGE_9
+  #ifdef DISPLAY_FONT_DSIZE
+    case '(':
+      {
+        offset = 4;
+      }
+      // no break !!
+  #endif
+    case 9: // diagnostics
+    case '9':
+      linenr++;
+      linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page9_func_ptr) / 2) - POSSIBLE_OFFSET);
+      LCDsetLine(linenr + 1);
+      (*page9_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
+      LCDcrlf();
+      break;
+  #endif // page 9
+  #ifndef SUPPRESS_TELEMETRY_PAGE_R
+    case 'R':
+      {
+        //Reset logvalues
+  #if defined(LOG_VALUES) && (LOG_VALUES >= 2)
+        cycleTimeMax = 0;
+        cycleTimeMin = 65535;
+  #endif
+  #if BARO
+  #if defined(LOG_VALUES)
+        BAROaltMax = 0;
+  #endif
+  #endif
+  #if defined(FAILSAFE)
+        failsafeEvents = 0; // reset failsafe counter
+  #endif
+        i2c_errors_count = 0;
+        f.OK_TO_ARM = 1; // allow arming again
+        telemetry = 0; // no use to repeat this forever
+        break;
+      }
+  #endif // case R
+  #if defined(DEBUG) || defined(DEBUG_FREE)
+    case 'F':
+      PRINT_FREE_RAM;
+      break;
+  #endif // DEBUG
+      // WARNING: if you add another case here, you should also add a case: in Serial.pde, so users can access your case via terminal input
+  } // end switch (telemetry)
+  } // end function lcd_telemetry
+
+  #endif // DISPLAY_MULTILINE
+  /* ------------ DISPLAY_MATRIX ------------------------------------*/
+#ifdef DISPLAY_MATRIX
 #ifndef SUPPRESS_TELEMETRY_PAGE_5
 void outputMotorServo(uint8_t i, uint16_t unit) {
 #ifdef HELICOPTER
@@ -2503,6 +3060,14 @@ void lcd_telemetry() {
 #else
 #define POSSIBLE_OFFSET 0
 #endif
+  //###########################################################
+  //              Frame & Icons
+  //###########################################################
+  screen_FRAME();
+  icon_POWER();
+  icon_GPS();
+  icon_CYRCLE();
+  //###########################################################
   switch (telemetry) { // output telemetry data
       uint16_t unit;
       uint8_t i;
@@ -2693,55 +3258,58 @@ void lcd_telemetry() {
 #endif
     case 7: // GPS
     case '7':
-      linenr++;
-      linenr %= 6;
-      LCDsetLine(linenr + 1);
-      switch (linenr + POSSIBLE_OFFSET) {
-        case 0: // lat
-          fill_line1_gps_lat(0); // skip #sat
-          LCDprintChar(line1);
-          break;
-        case 1: // lon
-          fill_line2_gps_lon(0);
-          LCDprintChar(line2);
-          break;
-        case 2: // # Sats
-          strcpy_P(line1, PSTR("-- Sats"));
-          //                   0123456789012345
-          line1[0] = digit10(GPS_numSat);
-          line1[1] = digit1(GPS_numSat);
-          LCDprintChar(line1);
-          break;
-        //        case 3: //
-        //          strcpy_P(line1,PSTR("Status "));
-        //          //                   0123456789012345
-        //          LCDprintChar(line1);
-        //          if (1)
-        //            LCDprintChar("OK");
-        //          else {
-        //            LCDattributesReverse();
-        //            LCDprintChar("KO");
-        //            LCDattributesOff();
-        //          }
-        //        break;
-        case 4: // gps speed
-          {
-            uint8_t v = (GPS_speed * 0.036f);
-            strcpy_P(line1, PSTR("--km/h max--km/h"));
-            //                   0123456789012345
-            line1[0] = digit10(v);
-            line1[1] = digit1(v);
-            v = (GPS_speedMax * 0.036f);
-            line1[10] = digit10(v);
-            line1[11] = digit1(v);
+      screen_GPS();
+      /*
+        linenr++;
+        linenr %= 6;
+        LCDsetLine(linenr + 1);
+        switch (linenr + POSSIBLE_OFFSET) {
+          case 0: // lat
+            fill_line1_gps_lat(0); // skip #sat
             LCDprintChar(line1);
             break;
-          }
-        case 5: // vbat
-          output_V();
-          break;
-      }
-      LCDcrlf();
+          case 1: // lon
+            fill_line2_gps_lon(0);
+            LCDprintChar(line2);
+            break;
+          case 2: // # Sats
+            strcpy_P(line1, PSTR("-- Sats"));
+            //                   0123456789012345
+            line1[0] = digit10(GPS_numSat);
+            line1[1] = digit1(GPS_numSat);
+            LCDprintChar(line1);
+            break;
+          //        case 3: //
+          //          strcpy_P(line1,PSTR("Status "));
+          //          //                   0123456789012345
+          //          LCDprintChar(line1);
+          //          if (1)
+          //            LCDprintChar("OK");
+          //          else {
+          //            LCDattributesReverse();
+          //            LCDprintChar("KO");
+          //            LCDattributesOff();
+          //          }
+          //        break;
+          case 4: // gps speed
+            {
+              uint8_t v = (GPS_speed * 0.036f);
+              strcpy_P(line1, PSTR("--km/h max--km/h"));
+              //                   0123456789012345
+              line1[0] = digit10(v);
+              line1[1] = digit1(v);
+              v = (GPS_speedMax * 0.036f);
+              line1[10] = digit10(v);
+              line1[11] = digit1(v);
+              LCDprintChar(line1);
+              break;
+            }
+          case 5: // vbat
+            output_V();
+            break;
+        }
+        LCDcrlf();
+      */
       break;
 #endif // gps
 #endif // page 7
@@ -2790,11 +3358,13 @@ void lcd_telemetry() {
 #endif
     case 9: // diagnostics
     case '9':
+    /*
       linenr++;
       linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page9_func_ptr) / 2) - POSSIBLE_OFFSET);
       LCDsetLine(linenr + 1);
       (*page9_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
       LCDcrlf();
+      */
       break;
 #endif // page 9
 #ifndef SUPPRESS_TELEMETRY_PAGE_R
@@ -2829,7 +3399,6 @@ void lcd_telemetry() {
 } // end function lcd_telemetry
 
 #endif // DISPLAY_MULTILINE
-
 void toggle_telemetry(uint8_t t) {
   if (telemetry == t) telemetry = 0;
   else {

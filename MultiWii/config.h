@@ -36,7 +36,7 @@
     //#define BI
     //#define TRI
     //#define QUADP
-    //#define QUADX
+    #define QUADX
     //#define Y4
     //#define Y6
     //#define HEX6
@@ -44,7 +44,7 @@
     //#define HEX6H  // New Model
     //#define OCTOX8
     //#define OCTOFLATP
-    #define OCTOFLATX
+    //#define OCTOFLATX
     //#define FLYING_WING
     //#define VTAIL4
     //#define AIRPLANE
@@ -808,10 +808,11 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     /* style of display - AUTODETECTED via LCD_ setting - only activate to override defaults */
       //#define DISPLAY_2LINES
       //#define DISPLAY_MULTILINE
-      //#define MULTILINE_PRE 2  // multiline configMenu # pref lines
-      //#define MULTILINE_POST 6 // multiline configMenu # post lines
-      //#define DISPLAY_COLUMNS 16
+      #define MULTILINE_PRE 2  // multiline configMenu # pref lines
+      #define MULTILINE_POST 6 // multiline configMenu # post lines
+      #define DISPLAY_COLUMNS 16
       #define DISPLAY_MATRIX
+      #define MATRIX_COL  18
     /********************************    Navigation     ***********************************/
     /* keys to navigate the LCD menu */
       #define LCD_MENU_PREV 'p'
@@ -852,7 +853,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     //#define LCD_TELEMETRY_AUTO  "212232425262729" // strong emphasis on page 2
 
     /* manual stepping sequence; first page of the sequence gets loaded at startup to allow non-interactive display */
-    #define LCD_TELEMETRY_STEP "70123456789" // should contain a 0 to allow switching off.
+    #define LCD_TELEMETRY_STEP "90123456789" // should contain a 0 to allow switching off.
 
     /* optional exclude some functionality - uncomment to suppress some unwanted telemetry pages */
     //#define SUPPRESS_TELEMETRY_PAGE_1
@@ -894,7 +895,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
        with R1=33k and R2=51k
        vbat = [0;1023]*16/VBATSCALE
        must be associated with #define BUZZER ! */
-    //#define VBAT              // uncomment this line to activate the vbat code
+    #define VBAT              // uncomment this line to activate the vbat code
     #define VBATSCALE       131 // (*) (**) change this value if readed Battery voltage is different than real voltage
     #define VBATNOMINAL     126 // 12,6V full battery nominal voltage - only used for lcd.telemetry
     #define VBATLEVEL_WARN1 107 // (*) (**) 10,7V
