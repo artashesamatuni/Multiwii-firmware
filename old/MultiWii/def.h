@@ -869,20 +869,6 @@
 /**************************************************************************************/
 /***************      IMU Orientations and Sensor definitions      ********************/
 /**************************************************************************************/
-#if defined(EagleMON)
-  #define BMP085
-  #define L3G4200D
-  #define ADXL345
-  #define HMC5883
-  #define ACC_ORIENTATION(X, Y, Z)  {imu.accADC[ROLL]  = -X; imu.accADC[PITCH]  = -Y; imu.accADC[YAW]  =  Z;}
-  #define GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] =  X; imu.gyroADC[PITCH] =  Y; imu.gyroADC[YAW] = -Z;}
-  #define MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  Y; imu.magADC[PITCH]  = -X; imu.magADC[YAW]  =  Z;}
-  #define ADXL345_ADDRESS 0x53
-  #undef INTERNAL_I2C_PULLUPS
-  #define GPS_SERIAL 1
-  #define GPS_BAUD   115200
-  #define UBLOX
-#endif
 
 //please submit any correction to this list.
 #if defined(FFIMUv1)
@@ -1651,6 +1637,21 @@
   #undef INTERNAL_I2C_PULLUPS
 #endif
 
+#if defined(EagleMON)
+  #define BMP085
+  #define L3G4200D
+  #define ADXL345
+  #define HMC5883
+  #define ACC_ORIENTATION(X, Y, Z)  {imu.accADC[ROLL]  = -X; imu.accADC[PITCH]  = -Y; imu.accADC[YAW]  =  Z;}
+  #define GYRO_ORIENTATION(X, Y, Z) {imu.gyroADC[ROLL] =  X; imu.gyroADC[PITCH] =  Y; imu.gyroADC[YAW] = -Z;}
+  #define MAG_ORIENTATION(X, Y, Z)  {imu.magADC[ROLL]  =  Y; imu.magADC[PITCH]  = -X; imu.magADC[YAW]  =  Z;}
+  #define ADXL345_ADDRESS 0x53
+  #undef INTERNAL_I2C_PULLUPS
+  #define GPS_SERIAL 1
+  #define GPS_BAUD   115200
+  #define UBLOX
+#endif
+
 /**************************************************************************************/
 /***************              Sensor Type definitions              ********************/
 /**************************************************************************************/
@@ -1973,7 +1974,7 @@
         #error "NUMBER_MOTOR is not set, most likely you have not defined any type of multicopter"
 #endif
 
-#if (defined(LCD_DUMMY) || defined(LCD_SERIAL3W) || defined(LCD_TEXTSTAR) || defined(LCD_VT100) || defined(LCD_TTY) || defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) ) || defined(OLED_DIGOLE) || defined(ST7735)
+#if (defined(LCD_DUMMY) || defined(LCD_SERIAL3W) || defined(LCD_TEXTSTAR) || defined(LCD_VT100) || defined(LCD_TTY) || defined(LCD_ETPP) || defined(LCD_LCD03) || defined(LCD_LCD03S) || defined(OLED_I2C_128x64) ) || defined(OLED_DIGOLE)|| defined(ST7735)
   #define HAS_LCD
 #endif
 
