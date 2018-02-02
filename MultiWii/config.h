@@ -849,11 +849,11 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     #define LCD_TELEMETRY
 
     /* to enable automatic hopping between a choice of telemetry pages uncomment this. */
-    //#define LCD_TELEMETRY_AUTO "123452679" // pages 1 to 9 in ascending order
-    //#define LCD_TELEMETRY_AUTO  "212232425262729" // strong emphasis on page 2
+    //#define LCD_TELEMETRY_AUTO "7123452679" // pages 1 to 9 in ascending order
+    //#define LCD_TELEMETRY_AUTO  "712232425262729" // strong emphasis on page 2
 
     /* manual stepping sequence; first page of the sequence gets loaded at startup to allow non-interactive display */
-    #define LCD_TELEMETRY_STEP "23456789" // should contain a 0 to allow switching off.
+    #define LCD_TELEMETRY_STEP "723456789" // should contain a 0 to allow switching off.
 
     /* optional exclude some functionality - uncomment to suppress some unwanted telemetry pages */
     //#define SUPPRESS_TELEMETRY_PAGE_1

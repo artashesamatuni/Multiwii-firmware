@@ -1011,7 +1011,7 @@ void initLCD() {
 #ifdef LCD_TELEMETRY_STEP
   // load the first page of the step sequence
   LCDclear();
-  telemetry = telemetryStepSequence/*[telemetryStepIndex]; //*/[++telemetryStepIndex % strlen(telemetryStepSequence)];
+  telemetry = telemetryStepSequence[telemetryStepIndex]; //[++telemetryStepIndex % strlen(telemetryStepSequence)];
 #endif
 }
 #endif //Support functions for LCD_CONF and LCD_TELEMETRY
@@ -2301,6 +2301,8 @@ void icon_GPS(void) {
   uint8_t n = GPS_numSat;
   if (n)
   {
+    tft.setColor(0, 0, 0);
+    tft.drawFrame(110, 0, 28 , 15);
     tft.setColor(0, 255, 0);
     strcpy_P(buff, PSTR("#--"));
     buff[1] = '0' + n  / 10        - (n / 100)        * 10;
@@ -2309,11 +2311,7 @@ void icon_GPS(void) {
     tft.print(buff);
   }
   else
-  {
-    tft.setColor(0, 0, 0);
-    tft.drawFrame(110, 0, 28 , 12);
     tft.setColor(255, 0, 0);
-  }
   drawBitmap(100, 3, gps_bits, 8, 12);
 #else
   tft.setColor(255, 0, 0);
@@ -3118,6 +3116,7 @@ void lcd_telemetry() {
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_2
+/*
 #ifdef DISPLAY_FONT_DSIZE
     case '@':
       {
@@ -3125,6 +3124,7 @@ void lcd_telemetry() {
       }
       // no break !!
 #endif
+*/
     case 2: // sensor readings
     case '2':
       static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
