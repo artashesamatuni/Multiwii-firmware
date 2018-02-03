@@ -122,6 +122,7 @@ extern uint8_t  GPS_update;             // a binary toogle to distinct a GPS pos
 extern uint16_t GPS_ground_course;      //                   - unit: degree*10
 extern uint32_t GPS_time;
 
+
 extern uint8_t  GPS_mode;               // contains the current selected gps flight mode
 
 extern uint8_t NAV_error;                 //Last error situation of the nav engine

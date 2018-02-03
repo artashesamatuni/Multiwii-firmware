@@ -867,23 +867,24 @@ void LCDattributesOff() {}
 void LCDalarmAndReverse() {}
 #endif
 
-void LCDprintInt16(int16_t v) {
+void LCDprintInt16(int16_t v, uint8_t x, uint8_t y) {
   uint16_t unit;
-  char line[7]; // = "      ";
+  char buff[7]; // = "      ";
   if (v < 0 ) {
     unit = -v;
-    line[0] = '-';
+    buff[0] = '-';
   } else {
     unit = v;
-    line[0] = ' ';
+    buff[0] = ' ';
   }
-  line[1] = digit10000(unit);
-  line[2] = digit1000(unit);
-  line[3] = digit100(unit);
-  line[4] = digit10(unit);
-  line[5] = digit1(unit);
-  line[6] = 0;
-  LCDprintChar(line);
+  buff[1] = digit10000(unit);
+  buff[2] = digit1000(unit);
+  buff[3] = digit100(unit);
+  buff[4] = digit10(unit);
+  buff[5] = digit1(unit);
+  buff[6] = 0;
+
+  tft.print(buff);
 }
 void lcdprint_uint32(uint32_t v) {
   static char line[14] = "-.---.---.---";
@@ -1995,9 +1996,9 @@ void output_altitude() {
 #if BARO
   {
     int16_t h = alt.EstAlt / 100;
-    LCDprint('A'); LCDprintInt16(h); LCDprint('m');
+    LCDprint('A'); LCDprintInt16(h, 0, 0); LCDprint('m');
     h = BAROaltMax / 100;
-    LCDprintChar(" ("); LCDprintInt16(h);
+    LCDprintChar(" ("); LCDprintInt16(h, 0, 0);
   }
 #endif
 }
@@ -2220,7 +2221,7 @@ void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t
 void screen_FRAME(void)
 {
   tft.setColor(255, 255, 0);
-  tft.drawFrame(0, 18, 128 , 142);
+  tft.drawFrame(0, 0, 128 , 18);
   // tft.drawHLine(0, 15, 128);
 }
 void screen_GPS(void)
@@ -2277,58 +2278,53 @@ void screen_GPS(void)
   buff[12] = '0' + n              - (n / 10)         * 10;
   tft.setPrintPos(4, 104);
   tft.print(buff);
-  n = GPS_time;
-  strcpy_P(buff, PSTR("----------"));
-  buff[0]  = '0' + n  / 1000000000;
-  buff[1]  = '0' + n  / 100000000 - (n / 1000000000) * 10;
-  buff[2]  = '0' + n  / 10000000  - (n / 100000000)  * 10;
-  buff[3] = '0' + n  / 1000000   - (n / 10000000)   * 10;
-  buff[4] = '0' + n  / 100000    - (n / 1000000)    * 10;
-  buff[5] = '0' + n  / 10000     - (n / 100000)     * 10;
-  buff[6] = '0' + n  / 1000      - (n / 10000)      * 10;
-  buff[7] = '0' + n  / 100       - (n / 1000)       * 10;
-  buff[8] = '0' + n  / 10        - (n / 100)        * 10;
-  buff[9] = '0' + n              - (n / 10)         * 10;
-  tft.setPrintPos(4, 128);
-  tft.print(buff);
 }
+void icon_CB(bool stat, uint8_t x, uint8_t y, uint8_t s) {
+  tft.setColor(255, 255, 0);
+  tft.drawFrame(x, y, s, s);
+  if (stat)
+    tft.drawBox(x +2, y +2, s-4, s-4);
+}
+
+
 void icon_GPS(void) {
+#ifdef GPS
   const uint8_t PROGMEM gps_bits[] = {/* 8x12 */
     0x1c, 0x3e, 0x77, 0x63, 0x77, 0x3e, 0x3e, 0x1c, 0x1c, 0x08, 0x08, 0x00
   };
-#ifdef GPS
-  char buff[5];
+  char buff[3];
   uint8_t n = GPS_numSat;
-  if (n)
+
+  if (n > 0)
   {
-    tft.setColor(0, 0, 0);
-    tft.drawFrame(110, 0, 28 , 15);
-    tft.setColor(0, 255, 0);
     strcpy_P(buff, PSTR("#--"));
     buff[1] = '0' + n  / 10        - (n / 100)        * 10;
     buff[2] = '0' + n              - (n / 10)         * 10;
-    tft.setPrintPos(110, 12);
+    tft.setColor(0, 0, 0);
+    tft.drawBox(106, 1, 28, 13);
+    tft.setColor(255, 255, 0);
+    tft.setFont(ucg_font_orgv01_tr);
+    tft.setPrintPos(106, 11);
     tft.print(buff);
   }
   else
     tft.setColor(255, 0, 0);
-  drawBitmap(100, 3, gps_bits, 8, 12);
+  drawBitmap(96, 3, gps_bits, 8, 12);
 #else
+  const uint8_t PROGMEM nogps_bits[] = {
+    0x1c, 0x22, 0x49, 0x49, 0x41, 0x2a, 0x22, 0x14, 0x14, 0x08, 0x08, 0x00
+  };
   tft.setColor(255, 0, 0);
-  drawBitmap(100, 3, gps_bits, 8, 12);
-
+  drawBitmap(96, 3, nogps_bits, 8, 12);
 #endif
 }
 
 void icon_POWER(void) {
-  const uint8_t PROGMEM w_bits[] = {/* 8x12 */
-    0x1c, 0x7f, 0x41, 0x49, 0x49, 0x49, 0x49, 0x41, 0x49, 0x41, 0x7f, 0x00
-  };
 #ifdef VBAT
   const uint8_t PROGMEM ok_bits[] = {/* 8x12 */
     0x1c, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x7f, 0x00
   };
-  char buff[5];
+  char buff[4];
   strcpy_P(buff, PSTR("--.-V"));
   /*                   01234*/
   buff[0] = '0' + analog.vbat  / 100       - (analog.vbat / 1000)       * 10;
@@ -2338,80 +2334,85 @@ void icon_POWER(void) {
     tft.setColor(255, 0, 0);
   else
     tft.setColor(255, 255, 0);
-  drawBitmap(2, 3, w_bits, 8, 12);
-  tft.setFont(ucg_font_5x7_tr);
-  tft.setPrintPos(12, 12);
+  drawBitmap(2, 3, ok_bits, 8, 12);
+  //ucg_font_chikita_hf manr font
+  //ucg_font_fixed_v0_hf manr harmar
+  tft.setFont(ucg_font_orgv01_tr);
+  tft.setPrintPos(13, 10);
   tft.print(buff);
 #else
-  tft.setColor(255, 0, 0);
-  drawBitmap(2, 3, w_bits, 8, 12);
-#endif
-}
-
-void icon_CYRCLE(void)
-{
-  const uint8_t PROGMEM cycle_bits[] = {
-    0x20, 0x7e, 0x21, 0x01, 0x41, 0x41, 0x41, 0x40, 0x42, 0x3f, 0x02, 0x00
+  const uint8_t PROGMEM ko_bits[] = {/* 8x12 */
+    0x1c, 0x7f, 0x41, 0x49, 0x49, 0x49, 0x49, 0x41, 0x49, 0x41, 0x7f, 0x00
   };
-  char buff[4];
-  strcpy_P(buff, PSTR("----"));
-  if (cycleTime < LOOP_TIME)
-    tft.setColor(255, 0, 0);
-  else
-    tft.setColor(0, 255, 0);
-  drawBitmap(40, 3, cycle_bits, 8, 12);
-  buff[0] = '0' + cycleTime  / 1000       - (cycleTime / 10000)       * 10;
-  buff[1] = '0' + cycleTime  / 100       - (cycleTime / 1000)       * 10;
-  buff[2] = '0' + cycleTime  / 10        - (cycleTime / 100)        * 10;
-  buff[3] = '0' + cycleTime              - (cycleTime / 10)         * 10;
-  tft.setFont(ucg_font_5x7_tr);
-  tft.setPrintPos(55, 12);
-  tft.print(buff);
+  tft.setColor(255, 0, 0);
+  drawBitmap(2, 3, ko_bits, 8, 12);
+#endif
 }
 
 
 //--------------------------------------------------------------------
-
-void output_gyroX() {
+/*
+  void output_gyroX() {
   LCDprintInt16(imu.gyroData[0]); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.gyroData[0], GYROLIMIT);
+  }
+*/
+void output_gyroX() {
+  LCDprintInt16(imu.gyroData[1], 12, 35);
+  tft.setFont(ucg_font_7x14B_mf);
 }
 void output_gyroY() {
-  LCDprintInt16(imu.gyroData[1]); LCDprint(' ');
-  outputSensor(DISPLAY_COLUMNS - 10, imu.gyroData[1], GYROLIMIT);
+  char buff[10];
+  tft.setFont(ucg_font_7x14B_mf);
+  sprintf(buff, "Gy %d", imu.gyroData[1]);
+  tft.setPrintPos(12, 50);
+  tft.print(buff);
 }
 void output_gyroZ() {
+  char buff[10];
+  tft.setFont(ucg_font_7x14B_mf);
+  sprintf(buff, "Gz %d", imu.gyroData[2]);
+  tft.setPrintPos(12, 65);
+  tft.print(buff);
+}
+/*
+  void output_gyroY() {
+  LCDprintInt16(imu.gyroData[1]); LCDprint(' ');
+  outputSensor(DISPLAY_COLUMNS - 10, imu.gyroData[1], GYROLIMIT);
+  }
+  void output_gyroZ() {
   LCDprintInt16(imu.gyroData[2]); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.gyroData[2], GYROLIMIT);
-}
+  }
+*/
 void output_accX() {
-  LCDprintInt16(imu.accSmooth[0]); LCDprint(' ');
+  LCDprintInt16(imu.accSmooth[0], 0, 0); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.accSmooth[0], ACCLIMIT);
 }
 void output_accY() {
-  LCDprintInt16(imu.accSmooth[1]); LCDprint(' ');
+  LCDprintInt16(imu.accSmooth[1], 0, 0); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.accSmooth[1], ACCLIMIT);
 }
 void output_accZ() {
-  LCDprintInt16(imu.accSmooth[2]); LCDprint(' ');
+  LCDprintInt16(imu.accSmooth[2], 0, 0); LCDprint(' ');
   outputSensor(DISPLAY_COLUMNS - 10, imu.accSmooth[2] - ACC_1G, ACCLIMIT);
 }
 
 void output_debug0() {
   LCDprintChar("D1 ");
-  LCDprintInt16(debug[0]);
+  LCDprintInt16(debug[0], 0, 0);
 }
 void output_debug1() {
   LCDprintChar("D2 ");
-  LCDprintInt16(debug[1]);
+  LCDprintInt16(debug[1], 0, 0);
 }
 void output_debug2() {
   LCDprintChar("D3 ");
-  LCDprintInt16(debug[2]);
+  LCDprintInt16(debug[2], 0, 0);
 }
 void output_debug3() {
   LCDprintChar("D4 ");
-  LCDprintInt16(debug[3]);
+  LCDprintInt16(debug[3], 0, 0);
 }
 
 
@@ -3088,7 +3089,6 @@ void lcd_telemetry() {
   screen_FRAME();
   icon_POWER();
   icon_GPS();
-  icon_CYRCLE();
   //###########################################################
   switch (telemetry) { // output telemetry data
       uint16_t unit;
@@ -3116,24 +3116,39 @@ void lcd_telemetry() {
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_2
-/*
-#ifdef DISPLAY_FONT_DSIZE
-    case '@':
-      {
-        offset = 3;
-      }
-      // no break !!
-#endif
-*/
+    /*
+      #ifdef DISPLAY_FONT_DSIZE
+        case '@':
+          {
+            offset = 3;
+          }
+          // no break !!
+      #endif
+    */
     case 2: // sensor readings
     case '2':
+      tft.setFont(ucg_font_7x14B_mf);
+
+      tft.setColor(255, 255, 0);
+
       static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
-      i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, 6 - POSSIBLE_OFFSET);
-      LCDsetLine(i + 1);
-      LCDprintChar(sensorNames[i + POSSIBLE_OFFSET]);
-      LCDprint(' ');
-      (*page2_func_ptr [i + POSSIBLE_OFFSET] ) (); // not really linenumbers
-      LCDcrlf();
+      for (uint8_t n = 0; n < 6; n++)
+      {
+        tft.setPrintPos(4, 35 + n * 15);
+        tft.print(sensorNames[n]);
+        tft.setPrintPos(30, 35 + n * 15);
+        LCDprintInt16(imu.gyroData[n], 0, 0);
+      }
+
+      /*
+                  static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
+                  i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, 6 - POSSIBLE_OFFSET);
+                  tft.setPrintPos(4, 35 + i * 15);
+                  LCDprintChar(sensorNames[i + POSSIBLE_OFFSET]);
+                   tft.print(' ');
+                  (*page2_func_ptr [i + POSSIBLE_OFFSET] ) (); // not really linenumbers
+                  LCDcrlf();
+      */
       break;
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_3
@@ -3147,13 +3162,27 @@ void lcd_telemetry() {
     case 3: // checkboxes and modes
     case '3':
       {
-        i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, CHECKBOXITEMS - POSSIBLE_OFFSET);
-        LCDsetLine(i + 1);
-        LCDprintChar(checkboxitemNames[i + POSSIBLE_OFFSET]);
-        //LCDprintChar((PGM_P)(boxnames[index]));
-        LCDprint(' ');
-        LCDprint( rcOptions[i + POSSIBLE_OFFSET] ? 'X' : '.');
-        LCDcrlf();
+        tft.setFont(ucg_font_7x14B_mf);
+        tft.setColor(255, 255, 0);
+        tft.setPrintPos(4, 30);
+        tft.print("Checkboxitems");
+        
+        for (uint8_t n = 0; n < 6; n++)
+        {
+          tft.setPrintPos(4, 65 + n * 15);
+          tft.print(checkboxitemNames[n]);
+          icon_CB(rcOptions[n], 113, 53 + n * 15,13);
+          //  tft.print(rcOptions[n] ? 'X' : '.');
+        }
+        /*
+          i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, CHECKBOXITEMS - POSSIBLE_OFFSET);
+          LCDsetLine(i + 1);
+          LCDprintChar(checkboxitemNames[i + POSSIBLE_OFFSET]);
+          //LCDprintChar((PGM_P)(boxnames[index]));
+          LCDprint(' ');
+          LCDprint( rcOptions[i + POSSIBLE_OFFSET] ? 'X' : '.');
+          LCDcrlf();
+        */
         break;
       }
 #endif
@@ -3442,15 +3471,15 @@ void dumpPLog(uint8_t full) {
 #ifdef HAS_LCD
   /*LCDclear();*/ LCDnextline();
   LCDprintChar("LastOff   "); LCDprintChar(plog.running ? "KO" : "ok");  LCDnextline();
-  LCDprintChar("#On      "); LCDprintInt16(plog.start); LCDnextline();
-  LCDprintChar("Life[min]"); LCDprintInt16(plog.lifetime / 60); LCDnextline();
+  LCDprintChar("#On      "); LCDprintInt16(plog.start, 0, 0); LCDnextline();
+  LCDprintChar("Life[min]"); LCDprintInt16(plog.lifetime / 60, 0, 0); LCDnextline();
   if (full) {
 #ifdef DEBUG
-    LCDprintChar("#arm   "); LCDprintInt16(plog.arm); LCDnextline();
-    LCDprintChar("#disarm"); LCDprintInt16(plog.disarm); LCDnextline();
-    LCDprintChar("last[s]"); LCDprintInt16(plog.armed_time / 1000000); LCDnextline();
-    LCDprintChar("#fail@dis"); LCDprintInt16(plog.failsafe); LCDnextline();
-    LCDprintChar("#i2c@dis "); LCDprintInt16(plog.i2c); LCDnextline();
+    LCDprintChar("#arm   "); LCDprintInt16(plog.arm, 0, 0); LCDnextline();
+    LCDprintChar("#disarm"); LCDprintInt16(plog.disarm, 0, 0); LCDnextline();
+    LCDprintChar("last[s]"); LCDprintInt16(plog.armed_time / 1000000, 0, 0); LCDnextline();
+    LCDprintChar("#fail@dis"); LCDprintInt16(plog.failsafe, 0, 0); LCDnextline();
+    LCDprintChar("#i2c@dis "); LCDprintInt16(plog.i2c, 0, 0); LCDnextline();
     //            0123456789012345
 #endif
   }
