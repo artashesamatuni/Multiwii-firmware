@@ -43,9 +43,7 @@ static char template7[7] = " .... ";
 static char template3[3] = ". ";
 
 
-#ifdef DISPLAY_FONT_DSIZE
-static uint8_t line_is_valid = 0;
-#endif
+
 #if ( defined(LOG_PERMANENT) && defined(DISPLAY_MULTILINE) )
 static uint8_t lnr = 0;
 #endif
@@ -308,13 +306,10 @@ void  i2c_OLED_init(void) {
   //  delay(20);
   //  i2c_OLED_send_cmd(0x40);            // Display start line [0;63] -> [0x40;0x7f]
   //  delay(20);
-#ifdef DISPLAY_FONT_DSIZE
-  i2c_OLED_send_cmd(0xd6);            // zoom
-  i2c_OLED_send_cmd(0x01);            // on
-#else
+
   //    i2c_OLED_send_cmd(0xd6);            // zoom
   //    i2c_OLED_send_cmd(0x00);            // off
-#endif
+
   delay(20);
   i2c_OLED_send_cmd(0xaf);          //display on
   delay(20);
@@ -648,11 +643,7 @@ void i2c_OLED_DIGOLE_printChar(char c) { // prints a single char - should be pri
 }
 void i2c_OLED_DIGOLE_clear(void) {
   i2c_OLED_DIGOLE_send_string("CLSF");    // set font _
-#ifdef DISPLAY_FONT_DSIZE
-  i2c_write(0);                         // _ one of 6,10,18,51,120,123,0 - font 0 is 5x16 linesxrows; font 10 is 7x21
-#else
   i2c_write(10);
-#endif
 }
 #endif // OLED_DIGOLE
 /* ------------------------------------------------------------------ */
@@ -690,9 +681,6 @@ void ST7735_clear(void) {
 #endif // ST7735
 /*-----------------------------------------------------------------------------------------------------------------*/
 void LCDprint(uint8_t i) {
-#ifdef DISPLAY_FONT_DSIZE
-  if (! line_is_valid) return;
-#endif
 #if defined(LCD_SERIAL3W)
   // 1000000 / 9600  = 104 microseconds at 9600 baud.
   // we set it below to take some margin with the running interrupts
@@ -728,9 +716,6 @@ void LCDprint(uint8_t i) {
 
 void LCDprintChar(const char *s) {
 #ifdef OLED_DIGOLE
-#ifdef DISPLAY_FONT_DSIZE
-  if (! line_is_valid) return;
-#endif
   i2c_OLED_DIGOLE_printString(s);
 #else
   while (*s) {
@@ -778,14 +763,6 @@ void LCDclear() {
 }
 
 void LCDsetLine(byte line) { // Line = 1 or 2 - vt100 has lines 1-99
-#ifdef DISPLAY_FONT_DSIZE
-  if (line >= 1 && line <= (MULTILINE_PRE + MULTILINE_POST)) {
-    line_is_valid = 1;
-  } else {
-    line_is_valid = 0;
-    return;
-  }
-#endif
 #if defined(LCD_SERIAL3W)
   if (line == 1) {
     LCDprint(0xFE);
@@ -2220,9 +2197,14 @@ void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t
 
 void screen_FRAME(void)
 {
-  tft.setColor(255, 255, 0);
-  tft.drawFrame(0, 0, 128 , 18);
-  // tft.drawHLine(0, 15, 128);
+const uint8_t PROGMEM copter_bits[] = {/*8x12*/
+   0x00, 0x00, 0x63, 0x63, 0x14, 0x08, 0x14, 0x63, 0x63, 0x00, 0x00, 0x00 };
+  
+  tft.setColor(98, 193, 98);
+  tft.drawFrame(0, 0, 128 , 144);
+  tft.drawBox(0, 0, 128,16);
+  tft.setColor(255, 255, 255);
+  drawBitmap(2, 2, copter_bits, 8, 12);
 }
 void screen_GPS(void)
 {
@@ -2301,21 +2283,21 @@ void icon_GPS(void) {
     buff[1] = '0' + n  / 10        - (n / 100)        * 10;
     buff[2] = '0' + n              - (n / 10)         * 10;
     tft.setColor(0, 0, 0);
-    tft.drawBox(106, 1, 28, 13);
+    tft.drawBox(106, 145, 28, 13);
     tft.setColor(255, 255, 0);
     tft.setFont(ucg_font_orgv01_tr);
-    tft.setPrintPos(106, 11);
+    tft.setPrintPos(106, 155);
     tft.print(buff);
   }
   else
     tft.setColor(255, 0, 0);
-  drawBitmap(96, 3, gps_bits, 8, 12);
+  drawBitmap(96, 147, gps_bits, 8, 12);
 #else
   const uint8_t PROGMEM nogps_bits[] = {
     0x1c, 0x22, 0x49, 0x49, 0x41, 0x2a, 0x22, 0x14, 0x14, 0x08, 0x08, 0x00
   };
   tft.setColor(255, 0, 0);
-  drawBitmap(96, 3, nogps_bits, 8, 12);
+  drawBitmap(96, 147, nogps_bits, 8, 12);
 #endif
 }
 
@@ -2334,18 +2316,18 @@ void icon_POWER(void) {
     tft.setColor(255, 0, 0);
   else
     tft.setColor(255, 255, 0);
-  drawBitmap(2, 3, ok_bits, 8, 12);
+  drawBitmap(2, 147, ok_bits, 8, 12);
   //ucg_font_chikita_hf manr font
   //ucg_font_fixed_v0_hf manr harmar
   tft.setFont(ucg_font_orgv01_tr);
-  tft.setPrintPos(13, 10);
+  tft.setPrintPos(13, 154);
   tft.print(buff);
 #else
   const uint8_t PROGMEM ko_bits[] = {/* 8x12 */
     0x1c, 0x7f, 0x41, 0x49, 0x49, 0x49, 0x49, 0x41, 0x49, 0x41, 0x7f, 0x00
   };
   tft.setColor(255, 0, 0);
-  drawBitmap(2, 3, ko_bits, 8, 12);
+  drawBitmap(2, 147, ko_bits, 8, 12);
 #endif
 }
 
@@ -3077,12 +3059,8 @@ void (*page2_func_ptr[]) () = { output_gyroX, output_gyroY, output_gyroZ, output
 
 void lcd_telemetry() {
   static uint8_t linenr = 0;
-#ifdef DISPLAY_FONT_DSIZE
-  uint8_t offset = 0;
-#define POSSIBLE_OFFSET offset
-#else
 #define POSSIBLE_OFFSET 0
-#endif
+
   //###########################################################
   //              Frame & Icons
   //###########################################################
@@ -3097,34 +3075,18 @@ void lcd_telemetry() {
       telemetry = 0;
       break;
 #ifndef SUPPRESS_TELEMETRY_PAGE_1
-#ifdef DISPLAY_FONT_DSIZE
-    case '!':
-      {
-        offset = MULTILINE_PRE + MULTILINE_POST;
-      }
-      // no break !!
-#endif
     case 1:// overall display
     case '1':
       {
         linenr++;
-        linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page1_func_ptr) / 2) - POSSIBLE_OFFSET);
+        linenr %= min(MULTILINE_PRE + MULTILINE_POST, (sizeof(page1_func_ptr) / 2));
         LCDsetLine(linenr + 1);
-        (*page1_func_ptr [linenr + POSSIBLE_OFFSET] ) (); // not really linenumbers
+        (*page1_func_ptr [linenr] ) (); // not really linenumbers
         LCDcrlf();
         break;
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_2
-    /*
-      #ifdef DISPLAY_FONT_DSIZE
-        case '@':
-          {
-            offset = 3;
-          }
-          // no break !!
-      #endif
-    */
     case 2: // sensor readings
     case '2':
       tft.setFont(ucg_font_7x14B_mf);
@@ -3152,13 +3114,6 @@ void lcd_telemetry() {
       break;
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_3
-#ifdef DISPLAY_FONT_DSIZE
-    case '#':
-      {
-        offset = MULTILINE_PRE + MULTILINE_POST;
-      }
-      // no break !!
-#endif
     case 3: // checkboxes and modes
     case '3':
       {
@@ -3187,13 +3142,6 @@ void lcd_telemetry() {
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_4
-#ifdef DISPLAY_FONT_DSIZE
-    case '$':
-      {
-        offset = 4;
-      }
-      // no break !!
-#endif
     case 4: // RX inputs
     case '4':
       {
@@ -3218,13 +3166,6 @@ void lcd_telemetry() {
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_5
-#ifdef DISPLAY_FONT_DSIZE
-    case '%':
-      {
-        offset = MULTILINE_PRE + MULTILINE_POST;
-      }
-      // no break !!
-#endif
     case 5: // outputs motors+servos
     case '5':
       {
@@ -3265,13 +3206,6 @@ void lcd_telemetry() {
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_6
 #if defined(VBAT_CELLS)
-#ifdef DISPLAY_FONT_DSIZE
-    case '^':
-      {
-        offset = 4;
-      }
-      // no break !!
-#endif
     case 6: // alarms states
     case '6':
       {
@@ -3302,13 +3236,6 @@ void lcd_telemetry() {
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_7
 #if GPS
-#ifdef DISPLAY_FONT_DSIZE
-    case '&':
-      {
-        offset = MULTILINE_PRE + MULTILINE_POST;
-      }
-      // no break !!
-#endif
     case 7: // GPS
     case '7':
       screen_GPS();
@@ -3368,13 +3295,6 @@ void lcd_telemetry() {
 #endif // page 7
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_8
-#ifdef DISPLAY_FONT_DSIZE
-    case '*':
-      {
-        offset = 5;
-      }
-      // no break !!
-#endif
     case 8: // alarms states
     case '8':
       //   123456789.1234567890
@@ -3402,13 +3322,6 @@ void lcd_telemetry() {
 #endif // page 8
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_9
-#ifdef DISPLAY_FONT_DSIZE
-    case '(':
-      {
-        offset = 4;
-      }
-      // no break !!
-#endif
     case 9: // diagnostics
     case '9':
       /*
