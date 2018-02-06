@@ -77,7 +77,7 @@ Ucglib_ST7735_18x128x160_HWSPI tft(/*cd=*/ 3, /*cs=*/ 53, /*reset=*/ 2);
 // ST7735 primitives
 // *********************
 void ST7735_init () {
-   tft.begin(UCG_FONT_MODE_SOLID);
+  tft.begin(UCG_FONT_MODE_SOLID);
   //tft.begin(UCG_FONT_MODE_TRANSPARENT);
   tft.clearScreen();    // clear screen
   tft.setFont(ucg_font_8x13_mf);
@@ -1083,8 +1083,14 @@ void configurationLoop() {
 
 #ifdef LCD_TELEMETRY
 
-// LCDbar(n,v) : draw a bar graph - n number of chars for width, v value in % to display
+void bar(uint8_t x,uint8_t y,uint8_t s,float n, float v)
+{
+  tft.drawFrame(x,y,s,10);
+  tft.drawBox(x,y,s*v/n,10);
+}
+
 void LCDbar(uint8_t n, uint8_t v) {
+  
   if (v > 200) v = 0;
   else if (v > 100) v = 100;
 #if defined(LCD_SERIAL3W)
@@ -1111,6 +1117,9 @@ void LCDbar(uint8_t n, uint8_t v) {
   for (i = j; i < n; i++) l[i] = '.';
   l[n] = 0;
   LCDprintChar(l);
+#elif defined(ST7735)
+  tft.drawFrame(50,50,n,10);
+  tft.drawBox(50,50,v/n,10);
 #endif
 }
 
@@ -1465,6 +1474,8 @@ void fill_line2_gps_lon(uint8_t status) {
 
 
 //MATRIX FUNCTIONS----------------------------------------------------
+void icon_CB(bool stat, uint8_t x, uint8_t y, uint8_t s);
+
 void drawBitmap(int16_t x, int16_t y, const uint8_t bitmap[], int16_t w, int16_t h) {
   int16_t byteWidth = (w + 7) / 8; // Bitmap scanline pad = whole byte
   uint8_t byte = 0;
@@ -1490,14 +1501,56 @@ void screen_FRAME(char *label, uint8_t w, uint8_t h)
   tft.drawFrame(0, 0, w , h);
   tft.drawHLine(0, 14, w);
   tft.setFont(ucg_font_8x13_mf);
-  tft.setPrintPos(2,12);
+  tft.setPrintPos(2, 12);
   tft.print(label);
   tft.setColor(0, 255, 0);
-  drawBitmap(w-12, 3, copter_bits, 8, 8);
+  drawBitmap(w - 12, 3, copter_bits, 8, 8);
 }
+
+void screen_CB(void)
+{
+  screen_FRAME("Checkboxitems", 128, 96);
+  char buff[18];
+  int32_t n;
+  tft.setFont(ucg_font_7x13_mf);
+  for (uint8_t n = 0; n < 6; n++)
+  {
+    tft.setColor(0, 255, 0);
+    tft.setPrintPos(5, 27 + n * 13);
+    tft.print(checkboxitemNames[n]);
+    icon_CB(rcOptions[n], 114, 17 + n * 13, 12);
+  }
+}
+
+void screen_RX(void)
+{
+  const uint8_t cnt = 8;
+  screen_FRAME("Rx Inputs", 128, 31 + cnt * 13);
+  static char channelNames[cnt][4] = {"Ail", "Ele", "Yaw", "Thr", "Ax1", "Ax2", "Ax3", "Ax4"};
+  uint16_t unit;
+  for (uint8_t n = 0; n < cnt; n++)
+  {
+    tft.setPrintPos(5, 27 + n * 13);
+  //  i = linenr++ % 8; // 8 channels
+    //strcpy_P(line1,PSTR("-Thr ---- "));
+    //                   0123456789.12345
+    template3[0] = ( '0' + n + 1); // channel numbering [1;8]
+    tft.print(template3);
+    tft.print(channelNames[n]);
+    unit = rcData[n];
+    template7[1] = digit1000(unit);
+    template7[2] = digit100(unit);
+    template7[3] = digit10(unit);
+    template7[4] = digit1(unit);
+    tft.print(template7);
+  //  unit = constrain(rcData[n], 1000, 2000);
+ //   bar(10,17 + n * 13,25,1500, unit);
+  }
+}
+
 void screen_GPS(void)
 {
-  screen_FRAME("GPS", 128, 100);
+  screen_FRAME("GPS", 128, 70);
   // tft.setFont(ucg_font_6x10_tr);
   char buff[18];
   int32_t n;
@@ -1535,10 +1588,10 @@ void screen_GPS(void)
   tft.print(buff);
   n = GPS_altitude;
   strcpy_P(buff, PSTR("Alt.        ----m"));
-  buff[13] = '0' + n  / 1000      - (n / 10000)      * 10;
-  buff[14] = '0' + n  / 100       - (n / 1000)       * 10;
-  buff[15] = '0' + n  / 10        - (n / 100)        * 10;
-  buff[16] = '0' + n              - (n / 10)         * 10;
+  buff[12] = '0' + n  / 1000      - (n / 10000)      * 10;
+  buff[13] = '0' + n  / 100       - (n / 1000)       * 10;
+  buff[14] = '0' + n  / 10        - (n / 100)        * 10;
+  buff[15] = '0' + n              - (n / 10)         * 10;
   tft.setPrintPos(5, 53);
   tft.print(buff);
   n = GPS_speed * 0.036f;
@@ -1552,7 +1605,6 @@ void screen_GPS(void)
   tft.print(buff);
 }
 void icon_CB(bool stat, uint8_t x, uint8_t y, uint8_t s) {
-  tft.setColor(255, 255, 0);
   tft.drawFrame(x, y, s, s);
   if (stat)
     tft.drawBox(x + 2, y + 2, s - 4, s - 4);
@@ -2407,18 +2459,8 @@ void lcd_telemetry() {
     case 3: // checkboxes and modes
     case '3':
       {
-        tft.setFont(ucg_font_7x14B_mf);
-        tft.setColor(255, 255, 0);
-        tft.setPrintPos(4, 30);
-        tft.print("Checkboxitems");
+        screen_CB();
 
-        for (uint8_t n = 0; n < 6; n++)
-        {
-          tft.setPrintPos(4, 65 + n * 15);
-          tft.print(checkboxitemNames[n]);
-          icon_CB(rcOptions[n], 113, 53 + n * 15, 13);
-          //  tft.print(rcOptions[n] ? 'X' : '.');
-        }
         /*
           i = linenr++ % min(MULTILINE_PRE + MULTILINE_POST, CHECKBOXITEMS - POSSIBLE_OFFSET);
           LCDsetLine(i + 1);
@@ -2435,23 +2477,8 @@ void lcd_telemetry() {
     case 4: // RX inputs
     case '4':
       {
-        static char channelNames[8][4] = {"Ail", "Ele", "Yaw", "Thr", "Ax1", "Ax2", "Ax3", "Ax4"};
-        i = linenr++ % 8; // 8 channels
-        LCDsetLine((i - POSSIBLE_OFFSET) % 8 + 1);
-        //strcpy_P(line1,PSTR("-Thr ---- "));
-        //                   0123456789.12345
-        template3[0] = ( '0' + i + 1); // channel numbering [1;8]
-        LCDprintChar(template3);
-        LCDprintChar(channelNames[i]);
-        unit = rcData[i];
-        template7[1] = digit1000(unit);
-        template7[2] = digit100(unit);
-        template7[3] = digit10(unit);
-        template7[4] = digit1(unit);
-        LCDprintChar(template7);
-        unit = constrain(rcData[i], 1000, 2000);
-        LCDbar(DISPLAY_COLUMNS - 11, (unit - 1000) / 10 );
-        LCDcrlf();
+        screen_RX();
+
         break;
       }
 #endif
@@ -2528,7 +2555,7 @@ void lcd_telemetry() {
 #if GPS
     case 7: // GPS
     case '7':
-      
+
       screen_GPS();
       /*
         linenr++;
