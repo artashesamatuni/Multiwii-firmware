@@ -48,7 +48,7 @@ static char template3[3] = ". ";
 static uint8_t lnr = 0;
 #endif
 
-#define LCD_FLUSH {/*UartSendData();*/  }
+#define LCD_FLUSH {/*UartSendData();*/  delay(30);}
 
 char digit10000(uint16_t v) {
   return '0' + v / 10000;
