@@ -1507,6 +1507,25 @@ void screen_FRAME(char *label, uint8_t w, uint8_t h)
   drawBitmap(w - 12, 3, copter_bits, 8, 8);
 }
 
+void screen_S(void)
+{
+  screen_FRAME("Sensors", 128, 96);
+  tft.setFont(ucg_font_7x13_mf);
+      static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
+      for (uint8_t n = 0; n < 6; n++)
+      {
+        tft.setPrintPos(5, 27 + n * 13);
+        tft.print(sensorNames[n]);
+        tft.setPrintPos(30, 27 + n * 13);
+        LCDprintInt16(imu.gyroData[n], 0, 0);
+      }
+
+
+
+  
+}
+
+
 void screen_CB(void)
 {
   screen_FRAME("Checkboxitems", 128, 96);
@@ -2431,18 +2450,7 @@ void lcd_telemetry() {
 #ifndef SUPPRESS_TELEMETRY_PAGE_2
     case 2: // sensor readings
     case '2':
-      tft.setFont(ucg_font_7x14B_mf);
-
-      tft.setColor(255, 255, 0);
-
-      static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
-      for (uint8_t n = 0; n < 6; n++)
-      {
-        tft.setPrintPos(4, 35 + n * 15);
-        tft.print(sensorNames[n]);
-        tft.setPrintPos(30, 35 + n * 15);
-        LCDprintInt16(imu.gyroData[n], 0, 0);
-      }
+screen_S();
 
       /*
                   static char sensorNames[6][3] = {"Gx", "Gy", "Gz", "Ax", "Ay", "Az"};
