@@ -159,8 +159,7 @@
       //#define MultiWii_32U4_SE_no_baro // Hextronik MultiWii_32U4_SE without the MS561101BA to free flash-memory for other functions
       //#define Flyduino9DOF       // Flyduino 9DOF IMU MPU6050+HMC5883l
       //#define Nano_Plane         // Multiwii Plane version with tail-front LSM330 sensor http://www.radiosait.ru/en/page_5324.html
-      #define EagleMON
-      
+      #define Eagle
     /***************************    independent sensors    ********************************/
       /* leave it commented if you already checked a specific board above */
       /* I2C gyroscope */
@@ -781,7 +780,16 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
 
     /*****************************   The type of LCD     **********************************/
       /* choice of LCD attached for configuration and telemetry, see notes below */
-      #define ST7735
+      //#define LCD_DUMMY       // No Physical LCD attached.  With this & LCD_CONF defined, TX sticks still work to set gains, by watching LED blink.  
+      //#define LCD_SERIAL3W    // Alex' initial variant with 3 wires, using rx-pin for transmission @9600 baud fixed
+      //#define LCD_TEXTSTAR    // SERIAL LCD: Cat's Whisker LCD_TEXTSTAR Module CW-LCD-02 (Which has 4 input keys for selecting menus)
+      //#define LCD_VT100       // SERIAL LCD: vt100 compatible terminal emulation (blueterm, putty, etc.)
+      //#define LCD_TTY         // SERIAL LCD: useful to tweak parameters over cable with arduino IDE 'serial monitor'
+      //#define LCD_ETPP        // I2C LCD: Eagle Tree Power Panel LCD, which is i2c (not serial)
+      //#define LCD_LCD03       // I2C LCD: LCD03, which is i2c
+      //#define LCD_LCD03S      // SERIAL LCD: LCD03 whit serial 9600 baud comunication enabled.
+      //#define OLED_I2C_128x64 // I2C LCD: OLED http://www.multiwii.com/forum/viewtopic.php?f=7&t=1350
+      //#define OLED_DIGOLE     // I2C OLED from http://www.digole.com/index.php?productID=550
 
     /******************************   Display settings   ***********************************/
       #define LCD_SERIAL_PORT 0    // must be 0 on Pro Mini and single serial boards; Set to your choice on any Mega based board
@@ -798,11 +806,9 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
     /* style of display - AUTODETECTED via LCD_ setting - only activate to override defaults */
       //#define DISPLAY_2LINES
       //#define DISPLAY_MULTILINE
-      #define MULTILINE_PRE 2  // multiline configMenu # pref lines
-      #define MULTILINE_POST 6 // multiline configMenu # post lines
-      #define DISPLAY_COLUMNS 16
-      #define DISPLAY_MATRIX
-      #define MATRIX_COL  18
+      //#define MULTILINE_PRE 2  // multiline configMenu # pref lines
+      //#define MULTILINE_POST 6 // multiline configMenu # post lines
+      //#define DISPLAY_COLUMNS 16
     /********************************    Navigation     ***********************************/
     /* keys to navigate the LCD menu */
       #define LCD_MENU_PREV 'p'
@@ -836,14 +842,14 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
      * http://www.multiwii.com/wiki/index.php?title=LCD_Telemetry */
 
     /********************************    Activation     ***********************************/
-    #define LCD_TELEMETRY
+    //#define LCD_TELEMETRY
 
     /* to enable automatic hopping between a choice of telemetry pages uncomment this. */
-    //#define LCD_TELEMETRY_AUTO "7123452679" // pages 1 to 9 in ascending order
-    //#define LCD_TELEMETRY_AUTO  "712232425262729" // strong emphasis on page 2
+    //#define LCD_TELEMETRY_AUTO "123452679" // pages 1 to 9 in ascending order
+    //#define LCD_TELEMETRY_AUTO  "212232425262729" // strong emphasis on page 2
 
     /* manual stepping sequence; first page of the sequence gets loaded at startup to allow non-interactive display */
-    #define LCD_TELEMETRY_STEP "723456789" // should contain a 0 to allow switching off.
+    //#define LCD_TELEMETRY_STEP "0123456789" // should contain a 0 to allow switching off.
 
     /* optional exclude some functionality - uncomment to suppress some unwanted telemetry pages */
     //#define SUPPRESS_TELEMETRY_PAGE_1
@@ -885,7 +891,7 @@ Also note, that maqgnetic declination changes with time, so recheck your value e
        with R1=33k and R2=51k
        vbat = [0;1023]*16/VBATSCALE
        must be associated with #define BUZZER ! */
-    #define VBAT              // uncomment this line to activate the vbat code
+    //#define VBAT              // uncomment this line to activate the vbat code
     #define VBATSCALE       131 // (*) (**) change this value if readed Battery voltage is different than real voltage
     #define VBATNOMINAL     126 // 12,6V full battery nominal voltage - only used for lcd.telemetry
     #define VBATLEVEL_WARN1 107 // (*) (**) 10,7V

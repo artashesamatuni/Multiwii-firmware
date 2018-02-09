@@ -2436,6 +2436,13 @@ void lcd_telemetry() {
       telemetry = 0;
       break;
 #ifndef SUPPRESS_TELEMETRY_PAGE_1
+#ifdef DISPLAY_FONT_DSIZE
+    case '!':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+#endif
     case 1:// overall display
     case '1':
       {
@@ -2448,6 +2455,15 @@ void lcd_telemetry() {
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_2
+    /*
+      #ifdef DISPLAY_FONT_DSIZE
+        case '@':
+          {
+            offset = 3;
+          }
+          // no break !!
+      #endif
+    */
     case 2: // sensor readings
     case '2':
 screen_S();
@@ -2464,6 +2480,13 @@ screen_S();
       break;
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_3
+#ifdef DISPLAY_FONT_DSIZE
+    case '#':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+#endif
     case 3: // checkboxes and modes
     case '3':
       {
@@ -2482,6 +2505,13 @@ screen_S();
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_4
+#ifdef DISPLAY_FONT_DSIZE
+    case '$':
+      {
+        offset = 4;
+      }
+      // no break !!
+#endif
     case 4: // RX inputs
     case '4':
       {
@@ -2491,6 +2521,13 @@ screen_S();
       }
 #endif
 #ifndef SUPPRESS_TELEMETRY_PAGE_5
+#ifdef DISPLAY_FONT_DSIZE
+    case '%':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+#endif
     case 5: // outputs motors+servos
     case '5':
       {
@@ -2531,6 +2568,13 @@ screen_S();
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_6
 #if defined(VBAT_CELLS)
+#ifdef DISPLAY_FONT_DSIZE
+    case '^':
+      {
+        offset = 4;
+      }
+      // no break !!
+#endif
     case 6: // alarms states
     case '6':
       {
@@ -2561,6 +2605,13 @@ screen_S();
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_7
 #if GPS
+#ifdef DISPLAY_FONT_DSIZE
+    case '&':
+      {
+        offset = MULTILINE_PRE + MULTILINE_POST;
+      }
+      // no break !!
+#endif
     case 7: // GPS
     case '7':
 
@@ -2621,6 +2672,13 @@ screen_S();
 #endif // page 7
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_8
+#ifdef DISPLAY_FONT_DSIZE
+    case '*':
+      {
+        offset = 5;
+      }
+      // no break !!
+#endif
     case 8: // alarms states
     case '8':
       //   123456789.1234567890
@@ -2648,6 +2706,13 @@ screen_S();
 #endif // page 8
 
 #ifndef SUPPRESS_TELEMETRY_PAGE_9
+#ifdef DISPLAY_FONT_DSIZE
+    case '(':
+      {
+        offset = 4;
+      }
+      // no break !!
+#endif
     case 9: // diagnostics
     case '9':
       /*
